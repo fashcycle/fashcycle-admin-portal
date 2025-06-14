@@ -1,0 +1,7 @@
+export const STORAGE = {
+  USER_DETAILS: "eaVOWhFJxa",
+  USER_TOKEN: "mIZWsYFClS",
+  SESSION_TIME: "KLlXoZeBxI",
+  USER_SIGN_UP_TYPE: "BBhExzePgp",
+  USER_CURRENT_LOCATION: "VZXMgnfbDW",
+};
