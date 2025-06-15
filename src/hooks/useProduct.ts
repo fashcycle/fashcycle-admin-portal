@@ -2,6 +2,7 @@ import { useState } from 'react';
 import globalRequest from '../services/globalRequest';
 import { useAppState } from '../contexts/AppStateContext';
 import apiRoutes from '../utils/apiRoutes';
+import { helpers } from '../utils/helper';
 
 interface Product {
   id: string;
@@ -24,8 +25,28 @@ interface ProductListResponse {
   limit: number;
 }
 
+interface ProductDetail {
+  id: string;
+  name: string;
+  category: string;
+  type: string;
+  status: string;
+  price: number;
+  duration: number;
+  seller: string;
+  listedDate: string;
+  color: string;
+  size: string;
+  address: string;
+  description: string;
+  images: string[];
+  condition: string;
+  flexibility: string;
+  contactNumber: string;
+}
+
 interface ProductDetailResponse {
-  product: Product;
+  product: ProductDetail;
 }
 
 interface GetProductListParams {
@@ -38,7 +59,7 @@ interface GetProductListParams {
 
 export const useProduct = () => {
   const [productList, setProductList] = useState<Product[]>([]);
-  const [productDetail, setProductDetail] = useState<Product | null>(null);
+  const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const { setLoading } = useAppState();
@@ -83,8 +104,43 @@ export const useProduct = () => {
         'get'
       );
 
-      const data: ProductDetailResponse = response.data;
-      setProductDetail(data.product);
+      let product = response?.product;
+
+      const productDetailData = {
+        id: product.id,
+        name: product.productName,
+        category: product.category,
+        type: product.listingType[0],
+        status: product.status,
+        price: product.originalPurchasePrice,
+        duration: 3,
+        seller: product.owner.name,
+        listedDate: product.createdAt,
+        color: product.color,
+        size: product.size,
+        condition: "-",//not found in response
+        description: product.adminNote,
+        images: helpers.extractUrls(product.productImage),
+        contactNumber: product.owner.phone,
+        flexibility: product.sizeFlexibility,
+        address: "-"//not found in response
+      }
+
+      //if video is present then add video to the images array
+      if(product.productVideo){
+        productDetailData.images.push(product.productVideo);
+      }
+      //if accessoriesImage is present then add accessoriesImage to the images array
+      if(product.accessoriesImage){
+        productDetailData.images.push(product.accessoriesImage);
+      }
+      //if proofOfPurchase is present then add proofOfPurchase to the images array
+      if(product.proofOfPurchase){
+        productDetailData.images.push(product.proofOfPurchase);
+      }
+
+      const data: ProductDetailResponse = { product: productDetailData };
+      setProductDetail(productDetailData);
       return data.product;
     } catch (error) {
       console.error('Failed to fetch product details:', error);
@@ -159,9 +215,27 @@ export const useProductMutations = () => {
     }
   };
 
+  const updateProductStatus = async (productId: string, status: string) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.productUpdateStatus(productId),
+        'patch',  
+        { status }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to update product status:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     createProduct,
     updateProduct,
-    deleteProduct
+      deleteProduct,
+    updateProductStatus
   };
 };
