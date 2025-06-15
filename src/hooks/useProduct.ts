@@ -19,7 +19,7 @@ interface Product {
 
 interface ProductListResponse {
   products: Product[];
-  count: number;
+  totalItems: number;
   page: number;
   limit: number;
 }
@@ -62,7 +62,7 @@ export const useProduct = () => {
       );
       const data: ProductListResponse = response;
       setProductList(data.products);
-      setTotalProducts(data.count);
+      setTotalProducts(data.totalItems);
       setCurrentPage(data.page);
       return data;
     } catch (error) {
