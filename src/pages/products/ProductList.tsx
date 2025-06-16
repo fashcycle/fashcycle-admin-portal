@@ -15,13 +15,32 @@ interface Filters {
   category: string;
   type: string;
   status: string;
+  date: string;
 }
 
 const ProductList: React.FC = () => {
   const statuses = [
-    { label: "Pending", value: "pending" },
-    { label: "Approved", value: "approved" },
+    { label: "Pending Review", value: "pending" },
+    { label: "Active", value: "approved" },
+    { label: "Rejected", value: "rejected" },
     { label: "Query Raised", value: "query_raised" },
+  ];
+
+  const categories = [
+    { label: "Lehenga", value: "lehenga" },
+    { label: "Gown", value: "gown" },
+    { label: "Sahara Set", value: "sahara_set" },
+    { label: "Anarkali", value: "anarkali" },
+    { label: "Saree", value: "saree" },
+    { label: "Rajasthan Poshak", value: "rajasthan_poshak" },
+    { label: "Suit", value: "suit" },
+    { label: "Other", value: "other" },
+  ];
+
+  const types = [
+    { label: "Rent", value: "rent" },
+    { label: "Sell", value: "sell" },
+    { label: "Both", value: "both" },
   ];
 
   const scrollToTop = () => {
@@ -62,6 +81,7 @@ const ProductList: React.FC = () => {
     category: "",
     type: "",
     status: "",
+    date: "",
   });
 
   const { productList, getProductList, totalProducts } = useProduct();
@@ -96,6 +116,42 @@ const ProductList: React.FC = () => {
 
           <div className="relative">
             <select
+              value={filters.category}
+              onChange={(e) =>
+                setFilters({ ...filters, category: e.target.value })
+              }
+              className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="h-4 w-4 text-gray-400 absolute right-2 top-3.5 pointer-events-none" />
+          </div>
+
+          <div className="relative">
+            <select
+              value={filters.type}
+              onChange={(e) =>
+                setFilters({ ...filters, type: e.target.value })
+              }
+              className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Types</option>
+              {types.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="h-4 w-4 text-gray-400 absolute right-2 top-3.5 pointer-events-none" />
+          </div>
+
+          <div className="relative">
+            <select
               value={filters.status}
               onChange={(e) =>
                 setFilters({ ...filters, status: e.target.value })
@@ -110,6 +166,17 @@ const ProductList: React.FC = () => {
               ))}
             </select>
             <ChevronDown className="h-4 w-4 text-gray-400 absolute right-2 top-3.5 pointer-events-none" />
+          </div>
+
+          <div className="relative">
+            <input
+              type="date"
+              value={filters.date}
+              onChange={(e) =>
+                setFilters({ ...filters, date: e.target.value })
+              }
+              className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            />
           </div>
         </div>
       </div>
@@ -127,7 +194,7 @@ const ProductList: React.FC = () => {
                   "Price",
                   "Status",
                   "Seller",
-                  "Listed Date",
+                  "Listed Date & Time",
                   "Actions",
                 ].map((title) => (
                   <th

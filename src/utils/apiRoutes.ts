@@ -14,7 +14,8 @@ const apiRoutes = {
   productDetail: (id: string) => `/admin/products/${id}`,
   productCreate: '/admin/products/create',
   productUpdate: (id: string) => `/admin/products/${id}/update`,
-  productDelete: (id: string) => `/admin/products/${id}/delete`
+  productDelete: (id: string) => `/admin/products/${id}/delete`,
+  productUpdateStatus: (id: string) => `/admin/products/${id}/status`
 };
 
 export default apiRoutes;

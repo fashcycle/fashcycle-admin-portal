@@ -78,7 +78,7 @@ export const TokenRefresh = async (
  */
 const globalRequest = (
   url: string,
-  method: "get" | "post" | "put" | "delete" = "get",
+  method: "get" | "post" | "put" | "delete" | "patch" = "get",
   data: any = {},
   options: AxiosRequestConfig = {},
   token: boolean = true

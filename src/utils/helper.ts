@@ -190,11 +190,11 @@ export const helpers = {
   ): string => {
     const date = new Date(inputDate);
     if (isNaN(date.getTime())) return "Invalid Date";
-  
+
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
-  
+
     let timeOfDate = "";
     if (time) {
       let hours = date.getHours();
@@ -203,9 +203,9 @@ export const helpers = {
       const minutes = date.getMinutes().toString().padStart(2, "0");
       timeOfDate = `${hours}:${minutes} ${amOrPm}`;
     }
-  
+
     let formattedDate = "";
-  
+
     switch (format) {
       case "dd/mm/yyyy":
         formattedDate = `${day}/${month}/${year}`;
@@ -219,7 +219,11 @@ export const helpers = {
       default:
         formattedDate = `${day}/${month}/${year}`;
     }
-  
+
     return time ? `${formattedDate}, ${timeOfDate}` : formattedDate;
   },
+  extractUrls: (data: Record<string, any>): string[] =>
+    Object.values(data).filter(
+      (val) => typeof val === "string" && val.startsWith("http")
+    )
 };
