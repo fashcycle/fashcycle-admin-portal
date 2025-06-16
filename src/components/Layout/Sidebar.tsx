@@ -9,7 +9,8 @@ import {
   ChevronRight,
   Menu,
   X,
-  Store
+  Store,
+  Users
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -17,16 +18,23 @@ const Sidebar: React.FC = () => {
   const [isProductsOpen, setIsProductsOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navigation = [
+  type NavigationItem = {
+    name: string;
+    icon: any;
+    href: string;
+    children?: { name: string; href: string }[];
+  };
+
+  const navigation: NavigationItem[] = [
     {
-    name: 'Dashboard',
-    icon: LayoutDashboard,
-    href: '/dashboard'
-  },
+      name: 'Dashboard',
+      icon: LayoutDashboard,
+      href: '/dashboard'
+    },
     {
       name: 'Products',
       icon: Package,
-      href: '/dashboard/products'
+      href: '/dashboard/products',
       // children: [
       //   { name: 'Product Requests', href: '/dashboard/products' },
       //   { name: 'Approved Products', href: '/dashboard/products/approved' }
@@ -36,6 +44,11 @@ const Sidebar: React.FC = () => {
       name: 'Orders',
       icon: ShoppingCart,
       href: '/dashboard/orders'
+    },
+    {
+      name: 'Users',
+      icon: Users,
+      href: '/dashboard/users'
     },
     {
       name: 'Notifications',

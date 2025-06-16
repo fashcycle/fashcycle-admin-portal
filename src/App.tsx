@@ -19,6 +19,8 @@ import ProductEdit from './pages/products/ProductEdit';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import Notifications from './pages/Notifications';
+import UserDetail from './pages/UserDetail';
+import Users from './pages/Users';
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
                   <Route path="products/:id/edit" element={<ProductEdit />} />
                   <Route path="orders" element={<Orders />} />
                   <Route path="orders/:id" element={<OrderDetail />} />
+                  <Route path="users" element={<Users/>} />
+                  <Route path="users/:id" element={<UserDetail/>} />
                   <Route path="notifications" element={<Notifications />} />
                 </Route>
                 
