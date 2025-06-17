@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Edit, MoreHorizontal, Package } from "lucide-react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Edit, Package } from "lucide-react";
 import { useProduct, useProductMutations } from "../../hooks/useProduct";
 import { helpers } from "../../utils/helper";
 import ConfirmationPopup from "../../components/common/ConfirmationPopup";
 const ProductView: React.FC = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Hooks
   const { productDetail, getProductDetail } = useProduct();
-  const { updateProductStatus } = useProductMutations();
+  const { updateProductStatus, deleteProduct } = useProductMutations();
 
   // call api to get product detail
   useEffect(() => {
@@ -97,9 +98,12 @@ const ProductView: React.FC = () => {
   };
 
   const handleConfirmDelete = () => {
-    // Add your delete logic here
-    console.log("Product deleted");
-    setShowDeleteConfirm(false);
+    if (id) {
+      deleteProduct(id, () => {
+        setShowDeleteConfirm(false);
+        navigate("/dashboard/products");
+      });
+    }
   };
 
   const handleCancelDelete = () => {
@@ -130,9 +134,6 @@ const ProductView: React.FC = () => {
             <Edit className="h-4 w-4" />
             <span>Edit Product</span>
           </Link>
-          <button className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-            <MoreHorizontal className="h-5 w-5" />
-          </button>
         </div>
       </div>
 
@@ -243,9 +244,6 @@ const ProductView: React.FC = () => {
                 <div className="text-3xl font-bold text-green-600 dark:text-green-400">
                   ₹{productDetail?.price?.toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  for {productDetail?.duration} days
-                </div>
               </div>
             </div>
 
@@ -288,18 +286,12 @@ const ProductView: React.FC = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Condition:
-                </span>
-                <span className="font-medium text-gray-900 dark:text-white">
-                  {productDetail?.condition}
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
                   Contact Number:
                 </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {productDetail?.contactNumber}
+                  {productDetail?.contactNumber
+                    ? `+${productDetail?.contactNumber}`
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
@@ -307,7 +299,9 @@ const ProductView: React.FC = () => {
                   Size Flexibility:
                 </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {productDetail?.flexibility}
+                  {productDetail?.flexibility
+                    ? productDetail?.flexibility
+                    : "N/A"}
                 </span>
               </div>
               <div className="flex items-center space-x-2">
@@ -315,14 +309,14 @@ const ProductView: React.FC = () => {
                   Address:
                 </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {productDetail?.address}
+                  {productDetail?.address ? `${productDetail?.address}` : "N/A"}
                 </span>
               </div>
             </div>
 
             <div>
               <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Description
+                Description:
               </h4>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
                 {productDetail?.description}
@@ -338,9 +332,9 @@ const ProductView: React.FC = () => {
           </h2>
 
           {/*create select dropdown for status */}
-          <select 
+          <select
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 mb-4"
-            value={productDetail?.status || ''}
+            value={productDetail?.status || ""}
             onChange={(e) => handleUpdateProductStatus(e.target.value)}
           >
             {statuses.map((status) => (

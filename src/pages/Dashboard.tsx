@@ -123,7 +123,7 @@ const Dashboard: React.FC = () => {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Welcome back, Admin!</h1>
         <p className="text-blue-100">
-          Here's what's happening with your rental platform today.
+          Here's what's happening with your Fashcycle platform today.
         </p>
       </div>
 

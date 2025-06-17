@@ -18,7 +18,7 @@ interface User {
 
 interface UserListResponse {
   users: User[];
-  totalItems: number;
+  totalUsers: number;
   page: number;
   limit: number;
 }
@@ -72,14 +72,13 @@ export const useUser = () => {
             page: params.page || 1,
             limit: params.limit || 10,
             search: params.search || '',
-            type: params.type || null,
-            status: params.status || null
           }
         }
       );
       const data: UserListResponse = response;
+      console.log("data", data);
       setUserList(data.users);
-      setTotalUsers(data.totalItems);
+      setTotalUsers(data.totalUsers);
       setCurrentPage(data.page);
       return data;
     } catch (error) {

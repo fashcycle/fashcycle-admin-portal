@@ -17,6 +17,12 @@ const apiRoutes = {
   productDelete: (id: string) => `/admin/products/${id}/delete`,
   productUpdateStatus: (id: string) => `/admin/products/${id}/status`,
 
+  //category
+  allCategoryList: '/products/categories',
+  categoryList: '/admin/categories',
+  categoryDetail: (id: string) => `/admin/categories/${id}`,
+  categoryCreate: '/admin/categories/create',
+
   //user
   userList: `/users`,
   userDetail: (id: string)=> `/${id}`,  

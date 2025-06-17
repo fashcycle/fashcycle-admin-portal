@@ -32,7 +32,6 @@ interface ProductDetail {
   type: string;
   status: string;
   price: number;
-  duration: number;
   seller: string;
   listedDate: string;
   color: string;
@@ -40,7 +39,6 @@ interface ProductDetail {
   address: string;
   description: string;
   images: string[];
-  condition: string;
   flexibility: string;
   contactNumber: string;
 }
@@ -55,6 +53,7 @@ interface GetProductListParams {
   search?: string;
   status?: string;
   category?: string;
+  listingType?: string;
 }
 
 export const useProduct = () => {
@@ -77,7 +76,8 @@ export const useProduct = () => {
             limit: params.limit || 10,
             search: params.search || '',
             category: params.category || null,
-            status: params.status || null
+            status: params.status || null,
+            listingType: params.listingType || null,
           }
         }
       );
@@ -113,13 +113,11 @@ export const useProduct = () => {
         type: product.listingType[0],
         status: product.status,
         price: product.originalPurchasePrice,
-        duration: 3,
         seller: product.owner.name,
         listedDate: product.createdAt,
         color: product.color,
         size: product.size,
-        condition: "-",//not found in response
-        description: product.adminNote,
+        description: product.description,
         images: helpers.extractUrls(product.productImage),
         contactNumber: product.owner.phone,
         flexibility: product.sizeFlexibility,
@@ -127,15 +125,15 @@ export const useProduct = () => {
       }
 
       //if video is present then add video to the images array
-      if(product.productVideo){
+      if (product.productVideo) {
         productDetailData.images.push(product.productVideo);
       }
       //if accessoriesImage is present then add accessoriesImage to the images array
-      if(product.accessoriesImage){
+      if (product.accessoriesImage) {
         productDetailData.images.push(product.accessoriesImage);
       }
       //if proofOfPurchase is present then add proofOfPurchase to the images array
-      if(product.proofOfPurchase){
+      if (product.proofOfPurchase) {
         productDetailData.images.push(product.proofOfPurchase);
       }
 
@@ -164,7 +162,7 @@ export const useProduct = () => {
 };
 
 export const useProductMutations = () => {
-  const { setLoading } = useAppState();
+  const { setLoading, setMessage } = useAppState();
 
   const createProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
@@ -200,15 +198,18 @@ export const useProductMutations = () => {
     }
   };
 
-  const deleteProduct = async (productId: string) => {
+  const deleteProduct = async (productId: string, callback: () => void) => {
     try {
       setLoading(true);
       await globalRequest(
         apiRoutes.productDelete(productId),
         'delete'
       );
-    } catch (error) {
-      console.error('Failed to delete product:', error);
+      setMessage("Product deleted successfully", "success");
+      if (callback) callback();
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Failed to delete product";
+      setMessage(message, "error");
       throw error;
     } finally {
       setLoading(false);
@@ -220,12 +221,14 @@ export const useProductMutations = () => {
       setLoading(true);
       const response = await globalRequest(
         apiRoutes.productUpdateStatus(productId),
-        'patch',  
+        'patch',
         { status }
       );
+      setMessage("Product status updated successfully", "success");
       return response.data;
-    } catch (error) {
-      console.error('Failed to update product status:', error);
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Failed to update product status";
+      setMessage(message, "error");
       throw error;
     } finally {
       setLoading(false);
@@ -235,7 +238,7 @@ export const useProductMutations = () => {
   return {
     createProduct,
     updateProduct,
-      deleteProduct,
+    deleteProduct,
     updateProductStatus
   };
 };

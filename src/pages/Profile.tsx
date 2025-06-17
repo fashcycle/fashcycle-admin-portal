@@ -15,7 +15,7 @@ const Profile: React.FC = () => {
     location: 'New York, NY',
     joinDate: '2023-01-15',
     department: 'Administration',
-    bio: 'Experienced admin managing e-commerce rental platform with focus on customer satisfaction and operational efficiency.'
+    bio: 'Experienced admin managing e-commerce Fashcycle platform with focus on customer satisfaction and operational efficiency.'
   });
 
   const handleSave = async () => {

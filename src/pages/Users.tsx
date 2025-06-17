@@ -1,34 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Search, Filter, Eye, Mail, Phone } from "lucide-react";
+import { Search, Eye, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import Pagination from "../components/common/Pagination";
+import { helpers } from "../utils/helper";
 
 // Filters type
 interface Filters {
   page: number;
   limit: number;
   search: string;
-  category: string;
-  type: string;
-  status: string;
-  date: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: "active" | "inactive";
-  type: "seller" | "buyer";
-  products: number;
-  orders: number;
-  referrer: "Yes" | "No";
-  registration: string;
-  image: string;
-  role: string;
-  createdAt: string;
 }
 
 const Users: React.FC = () => {
@@ -56,28 +37,6 @@ const Users: React.FC = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
-      case "inactive":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-    }
-  };
-
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "seller":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
-      case "buyer":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-    }
-  };
-
   const getReferrerColor = (referrer: string) => {
     switch (referrer) {
       case "Yes":
@@ -93,10 +52,6 @@ const Users: React.FC = () => {
     page: 1,
     limit: 10,
     search: "",
-    category: "",
-    type: "",
-    status: "",
-    date: "",
   });
 
   const { userList, getUserList, totalUsers } = useUser();
@@ -133,10 +88,6 @@ const Users: React.FC = () => {
                   className="pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
-              <button className="flex items-center space-x-2 px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                <Filter className="h-4 w-4" />
-                <span>Filter</span>
-              </button>
             </div>
           </div>
         </div>
@@ -152,12 +103,6 @@ const Users: React.FC = () => {
                   Contact Number
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Type
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                   Products
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
@@ -167,7 +112,7 @@ const Users: React.FC = () => {
                   Referrer
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Registration
+                  Registration Date & Time
                 </th>
                 <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400">
                   Actions
@@ -183,10 +128,10 @@ const Users: React.FC = () => {
                   <td className="px-6 py-4">
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">
-                        {user?.name}
+                        {user?.name ? user?.name : "-"}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {user?.email}
+                        {user?.email ? user?.email : "-"}
                       </div>
                     </div>
                   </td>
@@ -195,37 +140,19 @@ const Users: React.FC = () => {
                       {/* <Mail className="h-4 w-4 text-gray-400" /> */}
                       {user?.phone ? (
                         <>
-                          <Phone className="h-4 w-4 text-gray-400 mr-2" />+
-                          {user?.phone}
+                          {/* <Phone className="h-4 w-4 text-gray-400 mr-2" /> */}
+                          +{user?.phone}
                         </>
                       ) : (
-                        "N/A"
+                        "-"
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        user?.status
-                      )}`}
-                    >
-                      {user?.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                        user?.type
-                      )}`}
-                    >
-                      {user?.type}
-                    </span>
+                  <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">
+                    {user?.products ? user?._count?.products : "-"}
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">
-                    {user?.products}
-                  </td>
-                  <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">
-                    {user?.orders}
+                    {user?.orders ? user?._count?.orders : "-"}
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -233,11 +160,17 @@ const Users: React.FC = () => {
                         user?.referrer
                       )}`}
                     >
-                      {user?.referrer}
+                      {user?.referrer ? user?.referrer : "-"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
-                    {user?.registration}
+                    {user?.createdAt
+                      ? helpers?.formatDateFunction(
+                          user?.createdAt ?? "",
+                          "dd/mm/yyyy",
+                          true
+                        )
+                      : "-"}
                   </td>
                   <td className="px-6 py-4">
                     <Link
@@ -252,15 +185,17 @@ const Users: React.FC = () => {
               ))}
             </tbody>
           </table>
-          <Pagination
-            itemsPerPage={filters.limit}
-            totalItems={totalUsers}
-            currentPage={filters.page}
-            onPageChange={(page: number) => {
-              scrollToTop();
-              setFilters({ ...filters, page });
-            }}
-          />
+          {totalUsers > 0 && (
+            <Pagination
+              itemsPerPage={filters.limit}
+              totalItems={totalUsers}
+              currentPage={filters.page}
+              onPageChange={(page: number) => {
+                scrollToTop();
+                setFilters({ ...filters, page });
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
