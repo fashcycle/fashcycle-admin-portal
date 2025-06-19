@@ -8,7 +8,7 @@ const ProductView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDelistConfirm, setShowDelistConfirm] = useState(false);
 
   // Hooks
   const { productDetail, getProductDetail } = useProduct();
@@ -93,21 +93,21 @@ const ProductView: React.FC = () => {
     return <img src={mediaUrl} alt={alt} className={className} />;
   };
 
-  const handleDeleteProduct = () => {
-    setShowDeleteConfirm(true);
+  const handleDelistProduct = () => {
+    setShowDelistConfirm(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelist = () => {
     if (id) {
       deleteProduct(id, () => {
-        setShowDeleteConfirm(false);
+        setShowDelistConfirm(false);
         navigate("/dashboard/products");
       });
     }
   };
 
-  const handleCancelDelete = () => {
-    setShowDeleteConfirm(false);
+  const handleCancelDelist = () => {
+    setShowDelistConfirm(false);
   };
 
   return (
@@ -346,21 +346,21 @@ const ProductView: React.FC = () => {
 
           {/* create button for delete product with red color */}
           <button
-            onClick={handleDeleteProduct}
+            onClick={handleDelistProduct}
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-red-500 text-white hover:bg-red-600 transition-colors"
           >
-            Delete Product
+            Delist Product
           </button>
         </div>
       </div>
 
       <ConfirmationPopup
-        isOpen={showDeleteConfirm}
-        onClose={handleCancelDelete}
-        onConfirm={handleConfirmDelete}
-        title="Delete Product"
-        message="Are you sure you want to delete this product? This action cannot be undone."
-        confirmText="Delete"
+        isOpen={showDelistConfirm}
+        onClose={handleCancelDelist}
+        onConfirm={handleConfirmDelist}
+        title="Delist Product"
+        message="Are you sure you want to delist this product? This action cannot be undone."
+        confirmText="Delist"
         cancelText="Cancel"
         type="danger"
       />

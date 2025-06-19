@@ -13,7 +13,7 @@ const apiRoutes = {
   productList: '/admin/products',
   productDetail: (id: string) => `/admin/products/${id}`,
   productCreate: '/admin/products/create',
-  productUpdate: (id: string) => `/admin/products/${id}/update`,
+  productUpdate: (id: string) => `/admin/products/${id}/details`,
   productDelete: (id: string) => `/admin/products/${id}/delete`,
   productUpdateStatus: (id: string) => `/admin/products/${id}/status`,
 

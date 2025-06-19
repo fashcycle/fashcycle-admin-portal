@@ -43,10 +43,6 @@ interface ProductDetail {
   contactNumber: string;
 }
 
-interface ProductDetailResponse {
-  product: ProductDetail;
-}
-
 interface GetProductListParams {
   page?: number;
   limit?: number;
@@ -56,9 +52,38 @@ interface GetProductListParams {
   listingType?: string;
 }
 
+interface ProductDetailToUpdate {
+  id: string;
+  name: string;
+  mobileNumber: string;
+  category: string;
+  originalPurchasePrice: number;
+  sizeFlexibility: string;
+  color: string;
+  listingType: string;
+  description: string;
+  previewFiles: {
+    frontLook: string | null;
+    backLook: string | null;
+    sideLook: string | null;
+    closeUpLook: string | null;
+    optional1: string | null;
+    optional2: string | null;
+    productVideo: string | null;  
+    accessories: string | null; 
+    proofOfPurchase: string | null;
+  }
+}
+
+interface ProductDetailResponse {
+  product: ProductDetail;
+  productDetailToUpdate: ProductDetailToUpdate;
+}
+
 export const useProduct = () => {
   const [productList, setProductList] = useState<Product[]>([]);
   const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
+  const [productDetailToUpdate, setProductDetailToUpdate] = useState<ProductDetailToUpdate | null>(null);
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const { setLoading } = useAppState();
@@ -121,7 +146,7 @@ export const useProduct = () => {
         images: helpers.extractUrls(product.productImage),
         contactNumber: product.owner.phone,
         flexibility: product.sizeFlexibility,
-        address: "-"//not found in response
+        address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.city}, ${product?.address?.state}, ${product?.address?.pincode}, ${product?.address?.country}`
       }
 
       //if video is present then add video to the images array
@@ -137,8 +162,99 @@ export const useProduct = () => {
         productDetailData.images.push(product.proofOfPurchase);
       }
 
-      const data: ProductDetailResponse = { product: productDetailData };
+      //set productDetailToUpdate
+ 
+    // response data => 
+  //   {
+  //     "id": "9a458dfd-a4cb-4f99-8333-dd0c5d8001ad",
+  //     "productName": "S Product-2",
+  //     "mobileNumber": "1234567890",
+  //     "category": "Saree",
+  //     "originalPurchasePrice": 3000,
+  //     "size": "L",
+  //     "sizeFlexibility": "3cm",
+  //     "color": "Red",
+  //     "productVideo": "https://fashcycle-official-media.s3.amazonaws.com/video/728d4b68-2f12-435f-9eb5-51c8e7526f86.mp4",
+  //     "accessoriesImage": "https://fashcycle-official-media.s3.amazonaws.com/image/5dba4561-d902-436b-8ae7-6da45687f3f2.webp",
+  //     "proofOfPurchase": "https://fashcycle-official-media.s3.amazonaws.com/image/2b7e50dc-1eda-492d-b5c1-d427364a5b9b.webp",
+  //     "listingType": [
+  //         "rent"
+  //     ],
+  //     "addressId": "5b3ca9aa-1715-404b-9e11-219d8bc8526f",
+  //     "ownerId": "6601124a-456d-4327-8203-b9fbff54a91d",
+  //     "createdAt": "2025-06-13T17:39:50.631Z",
+  //     "updatedAt": "2025-06-13T18:04:25.304Z",
+  //     "status": "APPROVED",
+  //     "adminNote": null,
+  //     "queryNote": null,
+  //     "approvedAt": "2025-06-13T18:04:25.299Z",
+  //     "queryRaisedAt": null,
+  //     "rejectedAt": null,
+  //     "description": "description",
+  //     "isAvailability": true,
+  //     "isRented": false,
+  //     "updatedById": null,
+  //     "owner": {
+  //         "id": "6601124a-456d-4327-8203-b9fbff54a91d",
+  //         "name": "Test20 User",
+  //         "email": "testuser20@gmail.com",
+  //         "image": "https://fashcycle-official-media.s3.amazonaws.com/image/cd3573ca-3509-4803-8f24-88beded090bc.webp",
+  //         "phone": "1234567890",
+  //         "role": "USER",
+  //         "createdAt": "2025-06-13T16:22:39.893Z",
+  //         "updatedAt": "2025-06-13T17:37:36.407Z"
+  //     },
+  //     "productImage": {
+  //         "id": "1093e0dc-9293-436d-8a51-da57186ca03c",
+  //         "frontLook": "https://fashcycle-official-media.s3.amazonaws.com/image/3d150243-6a3f-48d1-a77c-be35884a3421.webp",
+  //         "backLook": "https://fashcycle-official-media.s3.amazonaws.com/image/6fe04465-2ae5-4448-948a-4848a132e4e8.webp",
+  //         "sideLook": "https://fashcycle-official-media.s3.amazonaws.com/image/d87caabd-9b52-4b0b-8761-ecc45f8a1d3d.webp",
+  //         "closeUpLook": "https://fashcycle-official-media.s3.amazonaws.com/image/0a1192ad-fdfb-4728-9e8d-a16bbd37136e.webp",
+  //         "optional1": "https://fashcycle-official-media.s3.amazonaws.com/image/13d1cca3-0569-457d-a12b-41577112a285.webp",
+  //         "optional2": "https://fashcycle-official-media.s3.amazonaws.com/image/eb82e747-902b-4128-9c3f-82be4b282a59.webp",
+  //         "productId": "9a458dfd-a4cb-4f99-8333-dd0c5d8001ad"
+  //     },
+  //     "address": {
+  //         "id": "5b3ca9aa-1715-404b-9e11-219d8bc8526f",
+  //         "userId": "6601124a-456d-4327-8203-b9fbff54a91d",
+  //         "landmark": "Testing5",
+  //         "pincode": "123456789",
+  //         "city": "Testing City 5",
+  //         "state": "TC5",
+  //         "addressLine1": "123 Main St5",
+  //         "addressLine2": "Apt 4B5",
+  //         "country": "Testing5",
+  //         "address": "HOME",
+  //         "customAddressType": null
+  //     }
+  // }
+
+     let productDetailDataToUpdate = {
+       id: product?.id,
+       name: product?.productName,
+       mobileNumber: product?.mobileNumber,
+       category: product?.category,
+       originalPurchasePrice: product?.originalPurchasePrice,
+       sizeFlexibility: product?.sizeFlexibility,
+       color: product?.color,
+       listingType: product?.listingType[0],
+       description: product?.description,
+        previewFiles: {
+          frontLook: product?.productImage?.frontLook || null,
+          backLook: product?.productImage?.backLook || null,
+          sideLook: product?.productImage?.sideLook || null,
+          closeUpLook: product?.productImage?.closeUpLook || null,
+          optional1: product?.productImage?.optional1 || null,
+          optional2: product?.productImage?.optional2 || null,
+          productVideo: product?.productVideo || null,
+          accessories: product?.accessoriesImage || null,
+          proofOfPurchase: product?.proofOfPurchase || null,
+        }
+     }
+      
+      const data: ProductDetailResponse = { product: productDetailData, productDetailToUpdate: productDetailDataToUpdate };
       setProductDetail(productDetailData);
+      setProductDetailToUpdate(productDetailDataToUpdate);
       return data.product;
     } catch (error) {
       console.error('Failed to fetch product details:', error);
@@ -154,6 +270,7 @@ export const useProduct = () => {
     productDetail,
     totalProducts,
     currentPage,
+    productDetailToUpdate,
 
     // Functions
     getProductList,
