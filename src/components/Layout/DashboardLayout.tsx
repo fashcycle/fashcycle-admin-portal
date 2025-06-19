@@ -7,7 +7,7 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
-      <div className="lg:pl-80">
+      <div className="lg:pl-64">
         <Header />
         <main className="p-6">
           <Outlet />

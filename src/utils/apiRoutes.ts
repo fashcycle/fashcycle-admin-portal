@@ -15,7 +15,25 @@ const apiRoutes = {
   productCreate: '/admin/products/create',
   productUpdate: (id: string) => `/admin/products/${id}/update`,
   productDelete: (id: string) => `/admin/products/${id}/delete`,
-  productUpdateStatus: (id: string) => `/admin/products/${id}/status`
+  productUpdateStatus: (id: string) => `/admin/products/${id}/status`,
+
+  //category
+  allCategoryList: '/products/categories',
+  categoryList: '/admin/categories',
+  categoryDetail: (id: string) => `/admin/categories/${id}`,
+  categoryCreate: '/admin/categories/create',
+
+  //user
+  userList: `/users`,
+  userDetail: (id: string)=> `/${id}`,  
+  userCreate: `/`,
+  userUpdate: (userId: string)=> `/${userId}`,
+  userDelete: (userId: string)=> `/${userId}`,
+  userUpdateStatus: (userId: string)=> `/${userId}`,
+  userSuspend: (userId: string)=> `/${userId}`,
+  userSendMessage: (userId: string)=> `/${userId}`,
+
+
 };
 
 export default apiRoutes;

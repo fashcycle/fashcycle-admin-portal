@@ -9,7 +9,8 @@ import {
   ChevronRight,
   Menu,
   X,
-  Store
+  Store,
+  Users
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -17,25 +18,33 @@ const Sidebar: React.FC = () => {
   const [isProductsOpen, setIsProductsOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navigation = [
+  type NavigationItem = {
+    name: string;
+    icon: any;
+    href: string;
+    children?: { name: string; href: string }[];
+  };
+
+  const navigation: NavigationItem[] = [
     {
-    name: 'Dashboard',
-    icon: LayoutDashboard,
-    href: '/dashboard'
-  },
+      name: 'Dashboard',
+      icon: LayoutDashboard,
+      href: '/dashboard'
+    },
     {
       name: 'Products',
       icon: Package,
-      href: '/dashboard/products'
-      // children: [
-      //   { name: 'Product Requests', href: '/dashboard/products' },
-      //   { name: 'Approved Products', href: '/dashboard/products/approved' }
-      // ]
+      href: '/dashboard/products',
     },
     {
       name: 'Orders',
       icon: ShoppingCart,
       href: '/dashboard/orders'
+    },
+    {
+      name: 'Users',
+      icon: Users,
+      href: '/dashboard/users'
     },
     {
       name: 'Notifications',
@@ -44,9 +53,7 @@ const Sidebar: React.FC = () => {
     }
   ];
 
-  const isActive = (href: string) => {
-    return location.pathname === href;
-  };
+  const isActive = (href: string) => location.pathname === href;
 
   const isParentActive = (children: any[]) => {
     return children.some(child => location.pathname === child.href);
@@ -58,7 +65,7 @@ const Sidebar: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Store className="h-8 w-8 text-blue-600" />
           <span className="text-xl font-bold text-gray-900 dark:text-white">
-            RentHub Admin
+            Fashcycle Admin
           </span>
         </div>
         <button
@@ -112,9 +119,9 @@ const Sidebar: React.FC = () => {
               </div>
             ) : (
               <Link
-                to={item.href!}
+                to={item.href}
                 className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  isActive(item.href!)
+                  isActive(item.href)
                     ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                     : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
                 }`}
@@ -143,14 +150,14 @@ const Sidebar: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 flex">
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)} />
-          <div className="relative flex flex-col w-80 bg-white dark:bg-gray-900 shadow-xl">
+          <div className="relative flex flex-col w-64 bg-white dark:bg-gray-900 shadow-xl">
             <SidebarContent />
           </div>
         </div>
       )}
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-80 lg:fixed lg:inset-y-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
+      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700">
         <SidebarContent />
       </div>
     </>

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Search, Eye, Edit, ChevronDown } from "lucide-react";
+import { Search, Eye, Edit, ChevronDown, Bell, AlertTriangle, Phone, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useProduct } from "../../hooks/useProduct";
 import Pagination from "../../components/common/Pagination";
 import { helpers } from "../../utils/helper";
-
-
+import { useCategory } from "../../hooks/useProductCategory";
 
 // Filters type
 interface Filters {
@@ -13,7 +12,7 @@ interface Filters {
   limit: number;
   search: string;
   category: string;
-  type: string;
+  listingType: string;
   status: string;
   date: string;
 }
@@ -21,19 +20,19 @@ interface Filters {
 const ProductList: React.FC = () => {
   const statuses = [
     { label: "Pending Review", value: "pending" },
-    { label: "Active", value: "approved" },
+    { label: "Approved", value: "approved" },
     { label: "Rejected", value: "rejected" },
     { label: "Query Raised", value: "query_raised" },
   ];
 
   const categories = [
-    { label: "Lehenga", value: "lehenga" },
     { label: "Gown", value: "gown" },
-    { label: "Sahara Set", value: "sahara_set" },
+    { label: "Sahara Set", value: "sharara-set" },
+    { label: "Ethnic", value: "Ethnic" },
+    { label: "Saree", value: "Saree" },
+    { label: "Lehenga", value: "lehenga" },
     { label: "Anarkali", value: "anarkali" },
-    { label: "Saree", value: "saree" },
     { label: "Rajasthan Poshak", value: "rajasthan_poshak" },
-    { label: "Suit", value: "suit" },
     { label: "Other", value: "other" },
   ];
 
@@ -79,16 +78,68 @@ const ProductList: React.FC = () => {
     limit: 10,
     search: "",
     category: "",
-    type: "",
+    listingType: "",
     status: "",
     date: "",
   });
 
+  // Add state for the call popup
+  const [callPopup, setCallPopup] = useState({
+    isOpen: false,
+    productId: null as string | null,
+    selectedOption: '',
+  });
+
   const { productList, getProductList, totalProducts } = useProduct();
+  const { getAllCategories, allCategories } = useCategory();
+
+  //get category list for filter
+  useEffect(() => {
+    getAllCategories();
+  }, []);
+
+  console.log("allCategories", allCategories);
 
   useEffect(() => {
     getProductList(filters);
   }, [filters]);
+
+  // Handlers for the call popup
+  const handleCallClick = (productId: string) => {
+    setCallPopup({
+      isOpen: true,
+      productId,
+      selectedOption: '',
+    });
+  };
+
+  const handleClosePopup = () => {
+    setCallPopup({
+      isOpen: false,
+      productId: null,
+      selectedOption: '',
+    });
+  };
+
+  const handleOptionChange = (option: string) => {
+    setCallPopup(prev => ({
+      ...prev,
+      selectedOption: option,
+    }));
+  };
+
+  const handleSubmit = () => {
+    if (callPopup.selectedOption && callPopup.productId) {
+      // Handle the submission logic here
+      console.log('Product ID:', callPopup.productId);
+      console.log('Selected Option:', callPopup.selectedOption);
+      
+      // Add your API call or other logic here
+      
+      // Close the popup after submission
+      handleClosePopup();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -134,9 +185,9 @@ const ProductList: React.FC = () => {
 
           <div className="relative">
             <select
-              value={filters.type}
+              value={filters.listingType}
               onChange={(e) =>
-                setFilters({ ...filters, type: e.target.value })
+                setFilters({ ...filters, listingType: e.target.value })
               }
               className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             >
@@ -168,16 +219,14 @@ const ProductList: React.FC = () => {
             <ChevronDown className="h-4 w-4 text-gray-400 absolute right-2 top-3.5 pointer-events-none" />
           </div>
 
-          <div className="relative">
+          {/* <div className="relative">
             <input
               type="date"
               value={filters.date}
-              onChange={(e) =>
-                setFilters({ ...filters, date: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, date: e.target.value })}
               className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -195,6 +244,7 @@ const ProductList: React.FC = () => {
                   "Status",
                   "Seller",
                   "Listed Date & Time",
+                  "3 Stage Alert",
                   "Actions",
                 ].map((title) => (
                   <th
@@ -258,6 +308,30 @@ const ProductList: React.FC = () => {
                       true
                     )}
                   </td>
+                  {/* create 3 icons for 3 stage alert  1st will be notification icon with red color, 2nd will be alert icon with red color and last wil be call button  */}
+                  <td className="px-6 py-4">
+                    <div className="flex space-x-2">
+                      <button
+                        className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                        title="Send Notification"
+                      >
+                        <Bell className="h-4 w-4" />
+                      </button>
+                      <button
+                        className="p-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                        title="Send Alert"
+                      >
+                        <AlertTriangle className="h-4 w-4" />
+                      </button>
+                      <button
+                        className="p-2 text-gray-600 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
+                        title="Call"
+                        onClick={() => handleCallClick(product.id)}
+                      >
+                        <Phone className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
                       <Link
@@ -280,21 +354,88 @@ const ProductList: React.FC = () => {
               ))}
             </tbody>
           </table>
-
-          <Pagination
-            itemsPerPage={filters.limit}
-            totalItems={totalProducts}
-            currentPage={filters.page}
-            onPageChange={(page: number) => {
-              scrollToTop();
-              setFilters({ ...filters, page });
-            }}
-          />
+          {totalProducts > 1 && (
+            <Pagination
+              itemsPerPage={filters.limit}
+              totalItems={totalProducts}
+              currentPage={filters.page}
+              onPageChange={(page: number) => {
+                scrollToTop();
+                setFilters({ ...filters, page });
+              }}
+            />
+          )}
         </div>
       </div>
+
+      {/* Call Popup Modal */}
+      {callPopup.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Call Confirmation
+              </h3>
+              <button
+                onClick={handleClosePopup}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Do you want to proceed with the call?
+              </p>
+              
+              <div className="space-y-3">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="callOption"
+                    value="yes"
+                    checked={callPopup.selectedOption === 'yes'}
+                    onChange={(e) => handleOptionChange(e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                  />
+                  <span className="ml-2 text-gray-900 dark:text-white">Yes</span>
+                </label>
+                
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="callOption"
+                    value="no"
+                    checked={callPopup.selectedOption === 'no'}
+                    onChange={(e) => handleOptionChange(e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                  />
+                  <span className="ml-2 text-gray-900 dark:text-white">No</span>
+                </label>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={handleClosePopup}
+                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={!callPopup.selectedOption}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default ProductList;
-
