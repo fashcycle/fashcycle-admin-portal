@@ -422,7 +422,7 @@ const UserDetail: React.FC = () => {
                   Products Listed
                 </span>
                 <span className="font-bold text-blue-600 dark:text-blue-400">
-                  {userDetail.products?.length || 0}
+                  {userDetail.totalProducts || 0}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -430,7 +430,7 @@ const UserDetail: React.FC = () => {
                   Orders Placed
                 </span>
                 <span className="font-bold text-green-600 dark:text-green-400">
-                  {userDetail.orders?.length || 0}
+                  {userDetail.totalOrders || 0}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -554,7 +554,7 @@ const UserDetail: React.FC = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
               }`}
             >
-              Products Listed ({totalProducts || 0})
+              Products Listed ({userDetail.totalProducts || 0})
             </button>
             <button
               onClick={() => setActiveTab("orders")}
@@ -564,7 +564,7 @@ const UserDetail: React.FC = () => {
                   : "border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
               }`}
             >
-              Order History ({userDetail.orders?.length || 0})
+              Order History ({userDetail.totalOrders || 0})
             </button>
           </nav>
         </div>
@@ -723,7 +723,7 @@ const UserDetail: React.FC = () => {
           {activeTab === "orders" && (
             <div className="text-center py-8">
               <p className="text-gray-500 dark:text-gray-400">
-                {userDetail.orders?.length > 0 
+                {(userDetail.totalOrders || 0) > 0 
                   ? "Orders will be loaded here" 
                   : "No orders found"}
               </p>

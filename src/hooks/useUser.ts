@@ -30,6 +30,8 @@ interface User {
   addresses: Address[];
   products: any[];
   orders: any[];
+  totalProducts?: number;
+  totalOrders?: number;
 }
 
 interface UserListResponse {
@@ -49,6 +51,8 @@ interface UserDetail {
   joinDate: string;
   bio: string;
   avatar?: string;
+  totalOrders: number;
+  totalProducts: number;
   stats: {
     productsListed: number;
     ordersPlaced: number;
