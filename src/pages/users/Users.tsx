@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Search, Eye, Mail, Phone } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useUser } from "../hooks/useUser";
-import Pagination from "../components/common/Pagination";
-import { helpers } from "../utils/helper";
+import { useUser } from "../../hooks/useUser";
+import Pagination from "../../components/common/Pagination";
+import { helpers } from "../../utils/helper";
 
 // Filters type
 interface Filters {
@@ -55,11 +55,24 @@ const Users: React.FC = () => {
   });
 
   const { userList, getUserList, totalUsers } = useUser();
-  console.log("userList", userList);
 
   useEffect(() => {
     getUserList(filters);
   }, [filters]);
+
+  // Handle search input change
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    // If search term is more than 3 characters, update filters and reset to page 1
+    if (value.length > 3) {
+      setFilters({ ...filters, search: value, page: 1 });
+    } else if (value.length === 0) {
+      // If search is cleared, reset search filter and go to page 1
+      setFilters({ ...filters, search: "", page: 1 });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -84,7 +97,7 @@ const Users: React.FC = () => {
                   type="text"
                   placeholder="Search users..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchChange}
                   className="pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
@@ -149,19 +162,19 @@ const Users: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">
-                    {user?.products ? user?._count?.products : "-"}
+                    {/* {user?.products ? user?._count?.products : "-"} */}
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white font-medium">
-                    {user?.orders ? user?._count?.orders : "-"}
+                    {/* {user?.orders ? user?._count?.orders : "-"} */}
                   </td>
                   <td className="px-6 py-4">
-                    <span
+                    {/* <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getReferrerColor(
                         user?.referrer
                       )}`}
                     >
                       {user?.referrer ? user?.referrer : "-"}
-                    </span>
+                    </span> */}
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
                     {user?.createdAt

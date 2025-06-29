@@ -16,23 +16,34 @@ const apiRoutes = {
   productUpdate: (id: string) => `/admin/products/${id}/details`,
   productDelete: (id: string) => `/admin/products/${id}/delete`,
   productUpdateStatus: (id: string) => `/admin/products/${id}/status`,
+  userProducts: (userId: string) => `/admin/products/user/${userId}`,
 
   //category
   allCategoryList: '/products/categories',
   categoryList: '/admin/categories',
   categoryDetail: (id: string) => `/admin/categories/${id}`,
-  categoryCreate: '/admin/categories/create',
+  categoryCreate: '/admin/categories',
+  categoryStatusUpdate: (id: string) => `/admin/categories/${id}/status`,
+  categoryUpdate: (id: string) => `/admin/categories/${id}`,
+  // categoryDelete: (id: string) => `/admin/categories/${id}`,
 
   //user
-  userList: `/users`,
-  userDetail: (id: string)=> `/${id}`,  
-  userCreate: `/`,
-  userUpdate: (userId: string)=> `/${userId}`,
-  userDelete: (userId: string)=> `/${userId}`,
-  userUpdateStatus: (userId: string)=> `/${userId}`,
-  userSuspend: (userId: string)=> `/${userId}`,
-  userSendMessage: (userId: string)=> `/${userId}`,
+  userList: '/admin/users',
+  userDetail: (id: string) => `/admin/user/${id}`,
+  userCreate: '/admin/users',
+  userUpdate: (userId: string) => `/admin/user/${userId}`,
+  userDelete: (userId: string) => `/admin/user/${userId}`,
+  userUpdateStatus: (userId: string) => `/admin/user/${userId}/status`,
+  userSuspend: (userId: string) => `/admin/user/${userId}/suspend`,
+  userSendMessage: (userId: string) => `/admin/user/${userId}/message`,
 
+  //address
+  userAddressAdd: (userId: string) => `/admin/user/${userId}/address`,
+  addressUpdate: (addressId: string) => `/admin/address/${addressId}`,
+  addressDelete: (addressId: string) => `/admin/address/${addressId}`,
+
+  //orders
+  userOrders: (userId: string) => `/admin/orders/user/${userId}`,
 
 };
 

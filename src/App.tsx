@@ -16,11 +16,15 @@ import Profile from './pages/Profile';
 import ProductList from './pages/products/ProductList';
 import ProductView from './pages/products/ProductView';
 import ProductEdit from './pages/products/ProductEdit';
+import CategoryList from './pages/categories/CategoryList';
+import CategoryView from './pages/categories/CategoryView';
+import CategoryEdit from './pages/categories/CategoryEdit';
+import CategoryCreate from './pages/categories/CategoryCreate';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import Notifications from './pages/Notifications';
-import UserDetail from './pages/UserDetail';
-import Users from './pages/Users';
+import UserDetail from './pages/users/UserDetail';
+import Users from './pages/users/Users';
 
 function App() {
   return (
@@ -46,6 +50,10 @@ function App() {
                   <Route path="products" element={<ProductList />} />
                   <Route path="products/:id/view" element={<ProductView />} />
                   <Route path="products/:id/edit" element={<ProductEdit />} />
+                  <Route path="categories" element={<CategoryList />} />
+                  <Route path="categories/create" element={<CategoryCreate />} />
+                  <Route path="categories/:id" element={<CategoryView />} />
+                  <Route path="categories/:id/edit" element={<CategoryEdit />} />
                   <Route path="orders" element={<Orders />} />
                   <Route path="orders/:id" element={<OrderDetail />} />
                   <Route path="users" element={<Users/>} />
