@@ -32,6 +32,11 @@ const Sidebar: React.FC = () => {
       href: '/dashboard'
     },
     {
+      name: 'Category',
+      icon: Package,
+      href: '/dashboard/categories',
+    },
+    {
       name: 'Products',
       icon: Package,
       href: '/dashboard/products',

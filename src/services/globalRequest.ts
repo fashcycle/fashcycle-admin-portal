@@ -109,8 +109,13 @@ const globalRequest = (
     ...options,
   };
 
-  if (data && ["post", "put"].includes(method)) {
+  if (data && ["post", "put", "patch"].includes(method)) {
     sendData.data = data;
+    
+    // Don't set Content-Type for FormData to let browser set the correct boundary
+    if (!(data instanceof FormData)) {
+      headers["Content-Type"] = "application/json";
+    }
   }
 
   startSessionTime();

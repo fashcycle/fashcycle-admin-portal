@@ -63,11 +63,13 @@ const ProductList: React.FC = () => {
   };
 
   const getTypeColor = (type: string) => {
-    switch (type.toLowerCase()) {
+    switch (type?.toLowerCase()) {
       case "rent":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
       case "sell":
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "both":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
     }
@@ -275,16 +277,25 @@ const ProductList: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
-                    {product.category}
+                    {product.category.name}
                   </td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                        product.listingType[0]
-                      )}`}
-                    >
-                      {product.listingType[0]}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {product.listingType && product.listingType.length > 0 ? (
+                        product.listingType.map((type: string, typeIndex: number) => (
+                          <span
+                            key={typeIndex}
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(type)}`}
+                          >
+                            {type}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                          N/A
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                     ₹{product.originalPurchasePrice.toLocaleString()}
