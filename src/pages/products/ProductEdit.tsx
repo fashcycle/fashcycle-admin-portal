@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, Eye, Download, FileText, Video, Image } from 'lucide-react';
 import { useProduct } from '../../hooks/useProduct';
 
@@ -13,6 +13,7 @@ interface FileItem {
 
 const ProductEdit: React.FC = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { productDetailToUpdate, getProductDetail } = useProduct();
 
   // Initialize with empty state first
@@ -79,7 +80,7 @@ const ProductEdit: React.FC = () => {
         id: productDetailToUpdate.id || '',
         name: productDetailToUpdate?.name || '',
         mobileNumber: productDetailToUpdate?.mobileNumber || '',
-        category: productDetailToUpdate?.category || '',
+        category: productDetailToUpdate?.category?.name || '',
         originalPurchasePrice: productDetailToUpdate?.originalPurchasePrice || 0,
         sizeFlexibility: productDetailToUpdate?.sizeFlexibility || '',
         color: productDetailToUpdate?.color || '',
@@ -335,13 +336,13 @@ const ProductEdit: React.FC = () => {
       <div className="flex items-center justify-center min-h-64">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400">Failed to load product details</p>
-          <Link
-            to="/dashboard/products"
+          <button
+            onClick={() => navigate('/dashboard/products')}
             className="mt-4 inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Products</span>
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -352,13 +353,13 @@ const ProductEdit: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Link
-            to={`/dashboard/products/${id}/view`}
+          <button
+            onClick={() => navigate(`/dashboard/products`)}
             className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
             <span>Back to Product</span>
-          </Link>
+          </button>
         </div>
         {success && (
           <div className="text-green-600 dark:text-green-400 font-medium">

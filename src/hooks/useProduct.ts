@@ -9,7 +9,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: { name: string };
   image: string;
   stock: number;
   status: 'active' | 'inactive';
@@ -28,7 +28,7 @@ interface ProductListResponse {
 interface ProductDetail {
   id: string;
   name: string;
-  category: string;
+  category: { name: string };
   type: string;
   status: string;
   price: number;
@@ -40,7 +40,7 @@ interface ProductDetail {
   description: string;
   images: string[];
   flexibility: string;
-  contactNumber: string;
+  mobileNumber: string;
 }
 
 interface GetProductListParams {
@@ -56,7 +56,7 @@ interface ProductDetailToUpdate {
   id: string;
   name: string;
   mobileNumber: string;
-  category: string;
+  category: { name: string };
   originalPurchasePrice: number;
   sizeFlexibility: string;
   color: string;
@@ -144,7 +144,7 @@ export const useProduct = () => {
         size: product.size,
         description: product.description,
         images: helpers.extractUrls(product.productImage),
-        contactNumber: product.owner.phone,
+        mobileNumber: product.mobileNumber,
         flexibility: product.sizeFlexibility,
         address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.city}, ${product?.address?.state}, ${product?.address?.pincode}, ${product?.address?.country}`
       }
@@ -333,13 +333,18 @@ export const useProductMutations = () => {
     }
   };
 
-  const updateProductStatus = async (productId: string, status: string) => {
+  const updateProductStatus = async (productId: string, status: string, note?: string) => {
     try {
       setLoading(true);
+      const requestData: any = { status };
+      if (note) {
+        requestData.note = note;
+      }
+      
       const response = await globalRequest(
         apiRoutes.productUpdateStatus(productId),
-        'patch',
-        { status }
+        'put',
+        requestData
       );
       setMessage("Product status updated successfully", "success");
       return response.data;
