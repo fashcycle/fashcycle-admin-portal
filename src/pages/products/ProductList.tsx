@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Search, Eye, Edit, ChevronDown, Bell, AlertTriangle, Phone, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useProduct } from "../../hooks/useProduct";
+import { useProduct, useProductMutations } from "../../hooks/useProduct";
 import Pagination from "../../components/common/Pagination";
 import { helpers } from "../../utils/helper";
 import { useCategory } from "../../hooks/useProductCategory";
@@ -51,12 +51,16 @@ const ProductList: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case "active":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "approved":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "rejected":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "query_raised":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
       case "pending":
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
-      case "query raised":
-        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "active":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
     }
@@ -92,7 +96,17 @@ const ProductList: React.FC = () => {
     selectedOption: '',
   });
 
+  // Add state for the status management popup
+  const [statusPopup, setStatusPopup] = useState({
+    isOpen: false,
+    productId: null as string | null,
+    selectedStatus: '',
+    note: '',
+    loading: false,
+  });
+
   const { productList, getProductList, totalProducts } = useProduct();
+  const { updateProductStatus } = useProductMutations();
   const { getAllCategories, allCategories } = useCategory();
 
   //get category list for filter
@@ -143,11 +157,66 @@ const ProductList: React.FC = () => {
     }
   };
 
+  // Handlers for the status management popup
+  const handleStatusClick = (productId: string) => {
+    setStatusPopup({
+      isOpen: true,
+      productId,
+      selectedStatus: '',
+      note: '',
+      loading: false,
+    });
+  };
+
+  const handleCloseStatusPopup = () => {
+    setStatusPopup({
+      isOpen: false,
+      productId: null,
+      selectedStatus: '',
+      note: '',
+      loading: false,
+    });
+  };
+
+  const handleStatusChange = (status: string) => {
+    setStatusPopup(prev => ({
+      ...prev,
+      selectedStatus: status,
+    }));
+  };
+
+  const handleNoteChange = (note: string) => {
+    setStatusPopup(prev => ({
+      ...prev,
+      note,
+    }));
+  };
+
+  const handleStatusSubmit = async () => {
+    if (statusPopup.selectedStatus && statusPopup.productId) {
+      setStatusPopup(prev => ({ ...prev, loading: true }));
+      
+      try {
+        await updateProductStatus(statusPopup.productId, statusPopup.selectedStatus, statusPopup.note);
+        
+        // Refresh the product list
+        getProductList(filters);
+        
+        // Close the popup
+        handleCloseStatusPopup();
+      } catch (error) {
+        console.error('Failed to update product status:', error);
+      } finally {
+        setStatusPopup(prev => ({ ...prev, loading: false }));
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Product Tracking
+          Product Listing
         </h1>
       </div>
 
@@ -301,13 +370,25 @@ const ProductList: React.FC = () => {
                     ₹{product.originalPurchasePrice.toLocaleString()}
                   </td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        product.status
-                      )}`}
-                    >
-                      {product.status}
-                    </span>
+                    {product.status.toLowerCase() === 'pending' ? (
+                      <button
+                        onClick={() => handleStatusClick(product.id)}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(
+                          product.status
+                        )}`}
+                        title="Click to manage status"
+                      >
+                        {product.status}
+                      </button>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                          product.status
+                        )}`}
+                      >
+                        {product.status}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
                     {product.owner.name}
@@ -440,6 +521,101 @@ const ProductList: React.FC = () => {
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Status Management Popup Modal */}
+      {statusPopup.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Manage Product Status
+              </h3>
+              <button
+                onClick={handleCloseStatusPopup}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Select the new status for this product:
+              </p>
+              
+              <div className="space-y-3 mb-4">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="statusOption"
+                    value="approved"
+                    checked={statusPopup.selectedStatus === 'approved'}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                  />
+                  <span className="ml-2 text-gray-900 dark:text-white">Approved</span>
+                </label>
+                
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="statusOption"
+                    value="rejected"
+                    checked={statusPopup.selectedStatus === 'rejected'}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                  />
+                  <span className="ml-2 text-gray-900 dark:text-white">Rejected</span>
+                </label>
+                
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    name="statusOption"
+                    value="query_raised"
+                    checked={statusPopup.selectedStatus === 'query_raised'}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600"
+                  />
+                  <span className="ml-2 text-gray-900 dark:text-white">Raise Query</span>
+                </label>
+              </div>
+
+              {(statusPopup.selectedStatus === 'rejected' || statusPopup.selectedStatus === 'query_raised') && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Note <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={statusPopup.note}
+                    onChange={(e) => handleNoteChange(e.target.value)}
+                    placeholder="Please provide a reason for rejection or query..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+                    rows={3}
+                    required
+                  />
+                </div>
+              )}
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={handleCloseStatusPopup}
+                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleStatusSubmit}
+                disabled={!statusPopup.selectedStatus || (statusPopup.selectedStatus !== 'approved' && !statusPopup.note.trim()) || statusPopup.loading}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {statusPopup.loading ? 'Updating...' : 'Update Status'}
               </button>
             </div>
           </div>

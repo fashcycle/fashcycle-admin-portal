@@ -220,10 +220,10 @@ const ProductView: React.FC = () => {
               <div className="flex items-center space-x-3 mb-4">
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
-                    productDetail?.category ?? ""
+                    productDetail?.category?.name ?? ""
                   )}`}
                 >
-                  {productDetail?.category}
+                  {productDetail?.category?.name}
                 </span>
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(
@@ -289,8 +289,8 @@ const ProductView: React.FC = () => {
                   Contact Number:
                 </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {productDetail?.contactNumber
-                    ? `+${productDetail?.contactNumber}`
+                  {productDetail?.mobileNumber
+                    ? `${productDetail?.mobileNumber}`
                     : "N/A"}
                 </span>
               </div>
