@@ -5,6 +5,7 @@ import { useProduct, useProductMutations } from "../../hooks/useProduct";
 import Pagination from "../../components/common/Pagination";
 import { helpers } from "../../utils/helper";
 import { useCategory } from "../../hooks/useProductCategory";
+import globalRequest from "../../services/globalRequest";
 
 // Filters type
 interface Filters {
@@ -105,6 +106,9 @@ const ProductList: React.FC = () => {
     loading: false,
   });
 
+  // Add state for availability toggle
+  const [availabilityLoading, setAvailabilityLoading] = useState<string | null>(null);
+
   const { productList, getProductList, totalProducts } = useProduct();
   const { updateProductStatus } = useProductMutations();
   const { getAllCategories, allCategories } = useCategory();
@@ -114,7 +118,7 @@ const ProductList: React.FC = () => {
     getAllCategories();
   }, []);
 
-  console.log("allCategories", allCategories);
+  // console.log("allCategories", allCategories);
 
   useEffect(() => {
     getProductList(filters);
@@ -212,6 +216,30 @@ const ProductList: React.FC = () => {
     }
   };
 
+  // Handler for availability toggle
+  const handleAvailabilityToggle = async (productId: string, currentStatus: boolean) => {
+    setAvailabilityLoading(productId);
+    
+    try {
+      const response = await globalRequest(
+        `/admin/products/${productId}/status`,
+        'put',
+        {
+          isAvailability: !currentStatus
+        }
+      );
+      
+      if (response.success) {
+        // Refresh the product list to show updated status
+        getProductList(filters);
+      }
+    } catch (error) {
+      console.error('Failed to update availability:', error);
+    } finally {
+      setAvailabilityLoading(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -245,9 +273,9 @@ const ProductList: React.FC = () => {
               className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Categories</option>
-              {categories.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
+              {allCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
                 </option>
               ))}
             </select>
@@ -313,6 +341,7 @@ const ProductList: React.FC = () => {
                   "Type",
                   "Price",
                   "Status",
+                  "Availability",
                   "Seller",
                   "Listed Date & Time",
                   "3 Stage Alert",
@@ -389,6 +418,25 @@ const ProductList: React.FC = () => {
                         {product.status}
                       </span>
                     )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center">
+                      <button
+                        onClick={() => handleAvailabilityToggle(product.id, product.isAvailability)}
+                        disabled={availabilityLoading === product.id}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                          product.isAvailability 
+                            ? 'bg-blue-600' 
+                            : 'bg-gray-200 dark:bg-gray-700'
+                        } ${availabilityLoading === product.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            product.isAvailability ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>                      
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
                     {product.owner.name}

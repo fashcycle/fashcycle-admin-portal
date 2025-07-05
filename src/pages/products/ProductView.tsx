@@ -327,12 +327,12 @@ const ProductView: React.FC = () => {
 
         {/* product Status and Actions */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {/* <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Product Status and Actions
-          </h2>
+          </h2> */}
 
           {/*create select dropdown for status */}
-          <select
+          {/* <select
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 mb-4"
             value={productDetail?.status || ""}
             onChange={(e) => handleUpdateProductStatus(e.target.value)}
@@ -342,14 +342,14 @@ const ProductView: React.FC = () => {
                 {status.label}
               </option>
             ))}
-          </select>
+          </select> */}
 
           {/* create button for delete product with red color */}
           <button
             onClick={handleDelistProduct}
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-red-500 text-white hover:bg-red-600 transition-colors"
           >
-            Delist Product
+            Delete Product
           </button>
         </div>
       </div>

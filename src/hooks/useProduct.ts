@@ -58,9 +58,10 @@ interface ProductDetailToUpdate {
   mobileNumber: string;
   category: { name: string };
   originalPurchasePrice: number;
+  size: string;
   sizeFlexibility: string;
   color: string;
-  listingType: string;
+  listingType: string[];
   description: string;
   previewFiles: {
     frontLook: string | null;
@@ -87,6 +88,38 @@ export const useProduct = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const { setLoading } = useAppState();
+
+  // Common product options that can be used across the application
+  const getProductColors = () => {
+    return  [
+      { name: "Red", color: "bg-red-500" },
+      { name: "Pink", color: "bg-pink-500" },
+      { name: "Maroon", color: "bg-red-900" },
+      { name: "Orange", color: "bg-orange-500" },
+      { name: "Yellow", color: "bg-yellow-500" },
+      { name: "Green", color: "bg-green-500" },
+      { name: "Blue", color: "bg-blue-500" },
+      { name: "Navy", color: "bg-blue-900" },
+      { name: "Purple", color: "bg-purple-500" },
+      { name: "Black", color: "bg-black" },
+      {
+        name: "White",
+        color: "bg-white border border-gray-200",
+      },
+      { name: "Grey", color: "bg-gray-500" },
+      { name: "Brown", color: "bg-amber-800" },
+      { name: "Gold", color: "bg-yellow-600" },
+      { name: "Silver", color: "bg-gray-300" },
+    ];
+  };
+
+  const getProductSizes = () => {
+    return ['S', 'M', 'L', 'XL', 'XXL'];
+  };
+
+  const getProductSizesFlexibility = () => {
+    return ['0cm','1cm','1.5cm','2cm','2.5cm','3cm','3.5cm', '3+cm'];
+  };
 
   const getProductList = async (params: GetProductListParams = {}) => {
     try {
@@ -146,7 +179,7 @@ export const useProduct = () => {
         images: helpers.extractUrls(product.productImage),
         mobileNumber: product.mobileNumber,
         flexibility: product.sizeFlexibility,
-        address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.city}, ${product?.address?.state}, ${product?.address?.pincode}, ${product?.address?.country}`
+        address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.landmark}`
       }
 
       //if video is present then add video to the images array
@@ -235,9 +268,10 @@ export const useProduct = () => {
        mobileNumber: product?.mobileNumber,
        category: product?.category,
        originalPurchasePrice: product?.originalPurchasePrice,
+       size: product?.size,
        sizeFlexibility: product?.sizeFlexibility,
        color: product?.color,
-       listingType: product?.listingType[0],
+       listingType: product?.listingType || [],
        description: product?.description,
         previewFiles: {
           frontLook: product?.productImage?.frontLook || null,
@@ -271,10 +305,13 @@ export const useProduct = () => {
     totalProducts,
     currentPage,
     productDetailToUpdate,
+    getProductSizesFlexibility,
 
     // Functions
     getProductList,
-    getProductDetail
+    getProductDetail,
+    getProductColors,
+    getProductSizes
   };
 };
 
@@ -357,10 +394,30 @@ export const useProductMutations = () => {
     }
   };
 
+  const editProduct = async (productId: string, productData: FormData) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.productUpdate(productId),
+        'put',
+        productData
+      );
+      setMessage("Product updated successfully", "success");
+      return response.data;
+    } catch (error: any) {
+      const message = error?.response?.data?.message || "Failed to update product";
+      setMessage(message, "error");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     createProduct,
     updateProduct,
     deleteProduct,
-    updateProductStatus
+    updateProductStatus,
+    editProduct
   };
 };
