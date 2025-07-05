@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Upload, X, Eye, Download, FileText, Video, Image } from 'lucide-react';
-import { useProduct } from '../../hooks/useProduct';
+import { useProduct, useProductMutations } from '../../hooks/useProduct';
+import { useCategory } from "../../hooks/useProductCategory";
 
 interface FileItem {
   id: string;
@@ -15,6 +16,13 @@ const ProductEdit: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { productDetailToUpdate, getProductDetail } = useProduct();
+  const { editProduct } = useProductMutations();
+  const { getAllCategories, allCategories } = useCategory();
+
+  //get category list for filter
+  useEffect(() => {
+    getAllCategories();
+  }, []);
 
   // Initialize with empty state first
   const [product, setProduct] = useState({
@@ -23,9 +31,10 @@ const ProductEdit: React.FC = () => {
     mobileNumber: '',
     category: '',
     originalPurchasePrice: 0,
+    size: '',
     sizeFlexibility: '',
     color: '',
-    listingType: 'rent',
+    listingType: ['rent'],
     files: {
       frontLook: null as FileItem | null,
       backLook: null as FileItem | null,
@@ -82,9 +91,10 @@ const ProductEdit: React.FC = () => {
         mobileNumber: productDetailToUpdate?.mobileNumber || '',
         category: productDetailToUpdate?.category?.name || '',
         originalPurchasePrice: productDetailToUpdate?.originalPurchasePrice || 0,
+        size: productDetailToUpdate?.size || '',
         sizeFlexibility: productDetailToUpdate?.sizeFlexibility || '',
         color: productDetailToUpdate?.color || '',
-        listingType: productDetailToUpdate?.listingType?.[0] || 'rent',
+        listingType: productDetailToUpdate?.listingType || ['rent'],
         files: {
           frontLook: convertToFileItem(productDetailToUpdate?.previewFiles?.frontLook),
           backLook: convertToFileItem(productDetailToUpdate?.previewFiles?.backLook),
@@ -108,20 +118,85 @@ const ProductEdit: React.FC = () => {
   }, [productDetailToUpdate]);
 
 
-  const categories = ['Formal Wear', 'Business Wear', 'Casual Wear', 'Sports Wear', 'Accessories'];
-  const sizeFlexibilityOptions = ['flexible', 'fixed'];
-  const colors = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Purple'];
+  // const sizeFlexibilityOptions = ['flexible', 'fixed'];
+  const { getProductColors, getProductSizes, getProductSizesFlexibility } = useProduct();
+  const colors = getProductColors();
+  const sizes = getProductSizes();
+  const sizeFlexibility = getProductSizesFlexibility();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Create FormData for file uploads
+      const formData = new FormData();
+      
+      // Add text fields
+      formData.append('productName', product.name);
+      formData.append('mobileNumber', product.mobileNumber);
+      formData.append('categoryId', getCategoryIdByName(product.category));
+      formData.append('originalPurchasePrice', product.originalPurchasePrice.toString());
+      formData.append('sizeFlexibility', product.sizeFlexibility);
+      formData.append('color', product.color);
+      formData.append('listingType', product.listingType.join(','));
+      formData.append('size', product.size);
+      formData.append('description', product.description);
+
+      // Add files if they exist
+      if (product.files.frontLook?.url && product.files.frontLook.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.frontLook.url, 'frontLook.jpg');
+        formData.append('frontLook', file);
+      }
+      if (product.files.backLook?.url && product.files.backLook.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.backLook.url, 'backLook.jpg');
+        formData.append('backLook', file);
+      }
+      if (product.files.sideLook?.url && product.files.sideLook.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.sideLook.url, 'sideLook.jpg');
+        formData.append('sideLook', file);
+      }
+      if (product.files.closeUpLook?.url && product.files.closeUpLook.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.closeUpLook.url, 'closeUpLook.jpg');
+        formData.append('closeUpLook', file);
+      }
+      if (product.files.optional1?.url && product.files.optional1.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.optional1.url, 'optional1.jpg');
+        formData.append('optional1', file);
+      }
+      if (product.files.optional2?.url && product.files.optional2.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.optional2.url, 'optional2.jpg');
+        formData.append('optional2', file);
+      }
+      if (product.files.productVideo?.url && product.files.productVideo.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.productVideo.url, 'productVideo.mp4');
+        formData.append('productVideo', file);
+      }
+      if (product.files.accessories?.url && product.files.accessories.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.accessories.url, 'accessories.jpg');
+        formData.append('accessoriesImage', file);
+      }
+      if (product.files.proofOfPurchase?.url && product.files.proofOfPurchase.url.startsWith('blob:')) {
+        const file = await urlToFile(product.files.proofOfPurchase.url, 'proofOfPurchase.jpg');
+        formData.append('proofOfPurchase', file);
+      }
+
+      // Call the API
+      if (!id) {
+        throw new Error('Product ID is required');
+      }
+      await editProduct(id, formData);
+      
       setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        navigate('/dashboard/products');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to update product:', error);
+    } finally {
       setLoading(false);
-      setTimeout(() => setSuccess(false), 3000);
-    }, 1500);
+    }
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -129,6 +204,39 @@ const ProductEdit: React.FC = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleListingTypeChange = (type: string, checked: boolean) => {
+    setProduct(prev => {
+      const currentTypes = [...prev.listingType];
+      if (checked) {
+        if (!currentTypes.includes(type)) {
+          currentTypes.push(type);
+        }
+      } else {
+        const index = currentTypes.indexOf(type);
+        if (index > -1) {
+          currentTypes.splice(index, 1);
+        }
+      }
+      return {
+        ...prev,
+        listingType: currentTypes
+      };
+    });
+  };
+
+  // Helper function to get category ID by name
+  const getCategoryIdByName = (categoryName: string): string => {
+    const category = allCategories.find(cat => cat.name === categoryName);
+    return category?.id || '';
+  };
+
+  // Helper function to convert blob URL to File object
+  const urlToFile = async (url: string, filename: string): Promise<File> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
   };
 
   const handleFileUpload = (section: string, files: FileList | null) => {
@@ -413,8 +521,8 @@ const ProductEdit: React.FC = () => {
                 required
               >
                 <option value="">Select category</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
+                {allCategories.map(category => (
+                  <option key={category.id} value={category.name}>{category.name}</option>
                 ))}
               </select>
             </div>
@@ -435,6 +543,23 @@ const ProductEdit: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Size <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={product.size}
+                onChange={(e) => handleInputChange('size', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                required
+              >
+                <option value="">Select size</option>
+                {sizes.map(size => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Size Flexibility <span className="text-red-500">*</span>
               </label>
               <select
@@ -444,7 +569,7 @@ const ProductEdit: React.FC = () => {
                 required
               >
                 <option value="">Select flexibility</option>
-                {sizeFlexibilityOptions.map(option => (
+                {sizeFlexibility.map(option => (
                   <option key={option} value={option}>
                     {option.charAt(0).toUpperCase() + option.slice(1)}
                   </option>
@@ -464,9 +589,23 @@ const ProductEdit: React.FC = () => {
               >
                 <option value="">Select color</option>
                 {colors.map(color => (
-                  <option key={color} value={color}>{color}</option>
+                  <option key={color.name} value={color.name}>{color.name}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Description <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                value={product.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white resize-none"
+                rows={4}
+                placeholder="Enter product description..."
+                required
+              />
             </div>
           </div>
         </div>
@@ -567,12 +706,11 @@ const ProductEdit: React.FC = () => {
           <div className="flex space-x-6">
             <label className="flex items-center">
               <input
-                type="radio"
-                name="listingType"
+                type="checkbox"
                 value="rent"
-                checked={product.listingType === 'rent'}
-                onChange={(e) => handleInputChange('listingType', e.target.value)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                checked={product.listingType.includes('rent')}
+                onChange={(e) => handleListingTypeChange('rent', e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Rent
@@ -581,12 +719,11 @@ const ProductEdit: React.FC = () => {
             
             <label className="flex items-center">
               <input
-                type="radio"
-                name="listingType"
+                type="checkbox"
                 value="sell"
-                checked={product.listingType === 'sell'}
-                onChange={(e) => handleInputChange('listingType', e.target.value)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                checked={product.listingType.includes('sell')}
+                onChange={(e) => handleListingTypeChange('sell', e.target.checked)}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                 Sell

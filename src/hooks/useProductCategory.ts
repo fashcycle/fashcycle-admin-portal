@@ -46,11 +46,11 @@ interface GetCategoryListParams {
 }
 
 interface AllCategory {
-    categories: []
+    categories: Category[]
 }
 
 export const useCategory = () => {
-    const [allCategories, setAllCategories] = useState<[]>([]);
+    const [allCategories, setAllCategories] = useState<Category[]>([]);
     const [categoryList, setCategoryList] = useState<Category[]>([]);
     const [categoryDetail, setCategoryDetail] = useState<CategoryDetail | null>(null);
     const [totalCategories, setTotalCategories] = useState(0);
