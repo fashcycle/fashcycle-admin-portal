@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   User,
@@ -25,6 +25,7 @@ import Pagination from "../../components/common/Pagination";
 
 const UserDetail: React.FC = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
@@ -684,12 +685,14 @@ const UserDetail: React.FC = () => {
                             <button
                               className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3"
                               title="View Details"
+                              onClick={() => navigate(`/dashboard/products/${product.id}/view`)}
                             >
                               <Eye className="h-4 w-4" />
                             </button>
                             <button
                               className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
                               title="Edit Product"
+                              onClick={() => navigate(`/dashboard/products/${product.id}/edit`)}
                             >
                               <Edit className="h-4 w-4" />
                             </button>
