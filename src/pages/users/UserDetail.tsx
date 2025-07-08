@@ -48,6 +48,12 @@ const UserDetail: React.FC = () => {
   const [productPage, setProductPage] = useState(1);
   const [productLimit] = useState(10);
 
+  // Order management states
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('');
+  const [orderPage, setOrderPage] = useState(1);
+  const [orderLimit] = useState(10);
+
   const { 
     userDetail, 
     getUserDetail, 
@@ -59,7 +65,11 @@ const UserDetail: React.FC = () => {
     userProducts,
     totalProducts,
     currentProductPage,
-    getUserProducts
+    getUserProducts,
+    userOrders,
+    totalOrders,
+    currentOrderPage,
+    getUserOrders
   } = useUser();
 
   useEffect(() => {
@@ -87,6 +97,13 @@ const UserDetail: React.FC = () => {
     }
   }, [id, activeTab, productPage, productSearch, productStatusFilter]);
 
+  // Load orders when tab changes to orders
+  useEffect(() => {
+    if (id && activeTab === "orders") {
+      loadUserOrders();
+    }
+  }, [id, activeTab, orderPage, orderSearch, orderStatusFilter]);
+
   const loadUserProducts = async () => {
     if (!id) return;
     
@@ -102,6 +119,21 @@ const UserDetail: React.FC = () => {
     }
   };
 
+  const loadUserOrders = async () => {
+    if (!id) return;
+    
+    try {
+      await getUserOrders(id, {
+        page: orderPage,
+        limit: orderLimit,
+        search: orderSearch,
+        status: orderStatusFilter,
+      });
+    } catch (error) {
+      console.error('Error loading user orders:', error);
+    }
+  };
+
   const handleProductSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setProductPage(1);
@@ -110,6 +142,16 @@ const UserDetail: React.FC = () => {
 
   const handleProductPageChange = (page: number) => {
     setProductPage(page);
+  };
+
+  const handleOrderSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setOrderPage(1);
+    loadUserOrders();
+  };
+
+  const handleOrderPageChange = (page: number) => {
+    setOrderPage(page);
   };
 
   const getStatusColor = (status: string) => {
@@ -132,6 +174,34 @@ const UserDetail: React.FC = () => {
       case "pending":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
       case "rejected":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+
+  const getOrderStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "order_confirmed":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "waiting_confirmation":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      case "cancelled":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "delivered":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "paid":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      case "failed":
         return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
@@ -724,12 +794,155 @@ const UserDetail: React.FC = () => {
             </div>
           )}
           {activeTab === "orders" && (
-            <div className="text-center py-8">
-              <p className="text-gray-500 dark:text-gray-400">
-                {(userDetail.totalOrders || 0) > 0 
-                  ? "Orders will be loaded here" 
-                  : "No orders found"}
-              </p>
+            <div className="space-y-6">
+              {/* Search and Filter */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <form onSubmit={handleOrderSearch} className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={orderSearch}
+                      onChange={(e) => setOrderSearch(e.target.value)}
+                      placeholder="Search orders..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+                </form>
+                <select
+                  value={orderStatusFilter}
+                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Status</option>
+                  <option value="PENDING">Pending</option>
+                  <option value="ORDER_CONFIRMED">Order Confirmed</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
+
+              {/* Orders Table */}
+              {userOrders.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Order ID
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Product
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Type
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Amount
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Payment
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      {userOrders.map((order) => (
+                        <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {order.orderNumber}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-12 w-12">
+                                <img
+                                  className="h-12 w-12 rounded-lg object-cover"
+                                  src={order.items[0]?.product?.productImage?.frontLook || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAyOEMyNi4yMDkxIDI4IDI4IDI2LjIwOTEgMjggMjRDMjggMjEuNzkwOSAyNi4yMDkxIDIwIDI0IDIwQzIxLjc5MDkgMjAgMjAgMjEuNzkwOSAyMCAyNEMyMCAyNi4yMDkxIDIxLjc5MDkgMjggMjQgMjhaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzMkMyNi4yMDkxIDMyIDI4IDMwLjIwOTEgMjggMjhDMjggMjUuNzkwOSAyNi4yMDkxIDI0IDI0IDI0QzIxLjc5MDkgMjQgMjAgMjUuNzkwOSAyMCAyOEMyMCAzMC4yMDkxIDIxLjc5MDkgMzIgMjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzNkMyNi4yMDkxIDM2IDI4IDM0LjIwOTEgMjggMzJDMjggMjkuNzkwOSAyNi4yMDkxIDI4IDI0IDI4QzIxLjc5MDkgMjggMjAgMjkuNzkwOSAyMCAzMkMyMCAzNC4yMDkxIDIxLjc5MDkgMzYgMjQgMzZaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo='}
+                                  alt={order.items[0]?.product?.productName}
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAyOEMyNi4yMDkxIDI4IDI4IDI2LjIwOTEgMjggMjRDMjggMjEuNzkwOSAyNi4yMDkxIDIwIDI0IDIwQzIxLjc5MDkgMjAgMjAgMjEuNzkwOSAyMCAyNEMyMCAyNi4yMDkxIDIxLjc5MDkgMjggMjQgMjhaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzMkMyNi4yMDkxIDMyIDI4IDMwLjIwOTEgMjggMjhDMjggMjUuNzkwOSAyNi4yMDkxIDI0IDI0IDI0QzIxLjc5MDkgMjQgMjAgMjUuNzkwOSAyMCAyOEMyMCAzMC4yMDkxIDIxLjc5MDkgMzIgMjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzNkMyNi4yMDkxIDM2IDI4IDM0LjIwOTEgMjggMzJDMjggMjkuNzkwOSAyNi4yMDkxIDI4IDI0IDI4QzIxLjc5MDkgMjggMjAgMjkuNzkwOSAyMCAzMkMyMCAzNC4yMDkxIDIxLjc5MDkgMzYgMjQgMzZaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo=';
+                                  }}
+                                />
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {order.items[0]?.product?.productName || 'N/A'}
+                                </div>
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                  {order.items.length > 1 ? `${order.items.length} items` : '1 item'}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900 dark:text-white">
+                              {order.items[0]?.type || 'N/A'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getOrderStatusColor(order.status)}`}>
+                              {order.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900 dark:text-white">
+                              {helpers?.formatDateFunction(order.orderedAt, "dd/mm/yyyy", true)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900 dark:text-white">
+                              ₹{order.totalAmount?.toLocaleString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusColor(order.paymentStatus)}`}>
+                              {order.paymentStatus}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                              title="View Order Details"
+                              onClick={() => navigate(`/dashboard/orders/${order.id}`)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No orders found
+                  </p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalOrders > orderLimit && (
+                <div className="mt-6">
+                  <Pagination
+                    currentPage={currentOrderPage}
+                    totalItems={totalOrders}
+                    itemsPerPage={orderLimit}
+                    onPageChange={handleOrderPageChange}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

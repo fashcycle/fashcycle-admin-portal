@@ -20,8 +20,8 @@ import CategoryList from './pages/categories/CategoryList';
 import CategoryView from './pages/categories/CategoryView';
 import CategoryEdit from './pages/categories/CategoryEdit';
 import CategoryCreate from './pages/categories/CategoryCreate';
-import Orders from './pages/Orders';
-import OrderDetail from './pages/OrderDetail';
+import OrderList from './pages/orders/OrderList';
+import OrderDetail from './pages/orders/OrderDetail';
 import Notifications from './pages/Notifications';
 import UserDetail from './pages/users/UserDetail';
 import Users from './pages/users/Users';
@@ -54,7 +54,7 @@ function App() {
                   <Route path="categories/create" element={<CategoryCreate />} />
                   <Route path="categories/:id" element={<CategoryView />} />
                   <Route path="categories/:id/edit" element={<CategoryEdit />} />
-                  <Route path="orders" element={<Orders />} />
+                  <Route path="orders" element={<OrderList />} />
                   <Route path="orders/:id" element={<OrderDetail />} />
                   <Route path="users" element={<Users/>} />
                   <Route path="users/:id" element={<UserDetail/>} />

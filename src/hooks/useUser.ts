@@ -153,11 +153,78 @@ interface GetUserProductsParams {
   status?: string;
 }
 
+interface OrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  price: number;
+  rentFrom: string;
+  rentTo: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  product: {
+    id: string;
+    productName: string;
+    productImage: {
+      id: string;
+      frontLook: string | null;
+      backLook: string | null;
+      sideLook: string | null;
+      closeUpLook: string | null;
+      optional1: string | null;
+      optional2: string | null;
+      productId: string;
+    };
+  };
+}
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  rentAmount: number;
+  totalAmount: number;
+  status: string;
+  paymentStatus: string;
+  shippingAddressId: string;
+  pickupAddressId: string;
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  orderedAt: string;
+  updatedAt: string;
+  deliveredAt: string | null;
+  returnDeliveredAt: string | null;
+  securityAmount: number;
+  convenienceFee: number;
+  items: OrderItem[];
+}
+
+interface OrderListResponse {
+  orders: Order[];
+  total: number;
+  currentPage: number;
+  limit: number;
+}
+
+interface GetUserOrdersParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}
+
 export const useUser = () => {
   const [userList, setUserList] = useState<User[]>([]);
   const [userDetail, setUserDetail] = useState<User | null>(null);
   const [totalUsers, setTotalUsers] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // User orders state
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [currentOrderPage, setCurrentOrderPage] = useState(1);
+  
   const { setLoading } = useAppState();
 
   const getUserList = async (params: GetUserListParams = {}) => {
@@ -379,6 +446,36 @@ export const useUser = () => {
     }
   };
 
+  const getUserOrders = async (userId: string, params: GetUserOrdersParams = {}) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.userOrders(userId),
+        'get',
+        {},
+        {
+          params: {
+            page: params.page || 1,
+            limit: params.limit || 10,
+            search: params.search || '',
+            status: params.status || '',
+          }
+        }
+      );
+      
+      const data: OrderListResponse = response;
+      setUserOrders(data.orders || []);
+      setTotalOrders(data.total || 0);
+      setCurrentOrderPage(data.currentPage || 1);
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch user orders:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     userList,
     userDetail,
@@ -396,6 +493,10 @@ export const useUser = () => {
     totalProducts,
     currentProductPage,
     getUserProducts,
+    userOrders,
+    totalOrders,
+    currentOrderPage,
+    getUserOrders,
   };
 };
 

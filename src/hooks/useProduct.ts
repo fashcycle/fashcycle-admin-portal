@@ -20,8 +20,8 @@ interface Product {
 
 interface ProductListResponse {
   products: Product[];
-  totalItems: number;
-  page: number;
+  total: number;
+  currentPage: number;
   limit: number;
 }
 
@@ -141,8 +141,8 @@ export const useProduct = () => {
       );
       const data: ProductListResponse = response;
       setProductList(data.products);
-      setTotalProducts(data.totalItems);
-      setCurrentPage(data.page);
+      setTotalProducts(data.total);
+      setCurrentPage(data.currentPage);
       return data;
     } catch (error) {
       console.error('Failed to fetch products:', error);
