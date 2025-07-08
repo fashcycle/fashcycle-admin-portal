@@ -43,6 +43,7 @@ const apiRoutes = {
   addressDelete: (addressId: string) => `/admin/address/${addressId}`,
 
   //orders
+  orderList: '/admin/orders',
   userOrders: (userId: string) => `/admin/orders/user/${userId}`,
 
 };
