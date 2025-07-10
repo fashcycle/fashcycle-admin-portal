@@ -44,6 +44,8 @@ const apiRoutes = {
 
   //orders
   orderList: '/admin/orders',
+  orderDetail: (id: string) => `/admin/orders/${id}`,
+  orderStatusUpdate: (id: string) => `/admin/orders/${id}/status`,
   userOrders: (userId: string) => `/admin/orders/user/${userId}`,
 
 };

@@ -48,6 +48,50 @@ interface Order {
   securityAmount: number;
   convenienceFee: number;
   items: OrderItem[];
+  // Additional fields for order detail
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+  seller?: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+  shippingAddress?: {
+    id: string;
+    userId: string;
+    pincodeId: string;
+    landmark: string;
+    addressLine1: string;
+    addressLine2: string | null;
+    addressType: string;
+    isDeleted: boolean;
+  };
+  pickupAddress?: {
+    id: string;
+    userId: string;
+    pincodeId: string;
+    landmark: string;
+    addressLine1: string;
+    addressLine2: string | null;
+    addressType: string;
+    isDeleted: boolean;
+  };
+  orderNotes?: string;
+  adminNotes?: string;
+  timeline?: {
+    orderPlaced: string;
+    orderConfirmed?: string;
+    packed?: string;
+    shipped?: string;
+    outForDelivery?: string;
+    delivered?: string;
+    returned?: string;
+  };
 }
 
 interface OrderListResponse {
@@ -65,8 +109,13 @@ interface GetOrdersParams {
   paymentStatus?: string;
 }
 
+interface UpdateOrderStatusParams {
+  status: string;
+}
+
 export const useOrders = () => {
   const [orderList, setOrderList] = useState<Order[]>([]);
+  const [orderDetail, setOrderDetail] = useState<Order | null>(null);
   const [totalOrders, setTotalOrders] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const { setLoading } = useAppState();
@@ -102,10 +151,68 @@ export const useOrders = () => {
     }
   };
 
+  const getOrderDetail = async (orderId: string) => {
+    if (!orderId) return null;
+
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.orderDetail(orderId),
+        'get'
+      );
+      
+      if (response.success && response.order) {
+        setOrderDetail(response.order);
+        return response.order;
+      } else {
+        throw new Error('Failed to fetch order details');
+      }
+    } catch (error) {
+      console.error('Failed to fetch order details:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateOrderStatus = async (orderId: string, params: UpdateOrderStatusParams) => {
+    if (!orderId) return null;
+
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.orderStatusUpdate(orderId),
+        'put',
+        params
+      );
+      
+      if (response.success) {
+        // Update the order detail if it's currently loaded
+        if (orderDetail && orderDetail.id === orderId) {
+          setOrderDetail({
+            ...orderDetail,
+            status: params.status
+          });
+        }
+        return response;
+      } else {
+        throw new Error('Failed to update order status');
+      }
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     orderList,
+    orderDetail,
     totalOrders,
     currentPage,
     getOrderList,
+    getOrderDetail,
+    updateOrderStatus,
   };
 }; 
