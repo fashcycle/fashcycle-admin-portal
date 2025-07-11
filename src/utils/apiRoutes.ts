@@ -48,6 +48,13 @@ const apiRoutes = {
   orderStatusUpdate: (id: string) => `/admin/orders/${id}/status`,
   userOrders: (userId: string) => `/admin/orders/user/${userId}`,
 
+  //referral codes
+  referralCodeList: '/admin/referral-codes',
+  referralCodeDetail: (id: string) => `/admin/referral-codes/${id}`,
+  referralCodeCreate: '/admin/referral-codes',
+  referralCodeUpdate: (id: string) => `/admin/referral-codes/${id}`,
+  referralCodeDelete: (id: string) => `/admin/referral-codes/${id}`,
+
 };
 
 export default apiRoutes;

@@ -10,7 +10,8 @@ import {
   Menu,
   X,
   Store,
-  Users
+  Users,
+  Gift
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -50,6 +51,11 @@ const Sidebar: React.FC = () => {
       name: 'Users',
       icon: Users,
       href: '/dashboard/users'
+    },
+    {
+      name: 'Referral Codes',
+      icon: Gift,
+      href: '/dashboard/referral-codes'
     },
     {
       name: 'Notifications',
