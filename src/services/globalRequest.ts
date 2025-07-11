@@ -78,13 +78,16 @@ export const TokenRefresh = async (
  */
 const globalRequest = (
   url: string,
-  method: "get" | "post" | "put" | "delete" | "patch" = "get",
+  method: "get" | "post" | "put" | "delete" | "patch",
   data: any = {},
   options: AxiosRequestConfig = {},
   token: boolean = true
 ): Promise<any> => {
   const headers: Record<string, string> = {
     "x-api-key": API_KEY,
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, x-api-key",
   };
 
   const userToken = addDeleteGetLocalStorage(STORAGE.USER_TOKEN, {}, "get") as string | null;
