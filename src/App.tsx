@@ -25,6 +25,7 @@ import OrderDetail from './pages/orders/OrderDetail';
 import Notifications from './pages/Notifications';
 import UserDetail from './pages/users/UserDetail';
 import Users from './pages/users/Users';
+import ReferralCodeList from './pages/referral-codes/ReferralCodeList';
 
 function App() {
   return (
@@ -58,6 +59,7 @@ function App() {
                   <Route path="orders/:id" element={<OrderDetail />} />
                   <Route path="users" element={<Users/>} />
                   <Route path="users/:id" element={<UserDetail/>} />
+                  <Route path="referral-codes" element={<ReferralCodeList />} />
                   <Route path="notifications" element={<Notifications />} />
                 </Route>
                 
