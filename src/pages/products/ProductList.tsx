@@ -24,6 +24,9 @@ const ProductList: React.FC = () => {
     { label: "Approved", value: "approved" },
     { label: "Rejected", value: "rejected" },
     { label: "Query Raised", value: "query_raised" },
+    { label: "Available", value: "available" },
+    { label: "Not Available", value: "not_available" },
+    { label: "Deleted", value: "deleted" },
   ];
 
   const categories = [
@@ -108,6 +111,8 @@ const ProductList: React.FC = () => {
 
   // Add state for availability toggle
   const [availabilityLoading, setAvailabilityLoading] = useState<string | null>(null);
+
+
 
   const { productList, getProductList, totalProducts } = useProduct();
   const { updateProductStatus } = useProductMutations();
@@ -240,6 +245,8 @@ const ProductList: React.FC = () => {
     }
   };
 
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -342,6 +349,7 @@ const ProductList: React.FC = () => {
                   "Price",
                   "Status",
                   "Availability",
+                  "Deleted",
                   "Seller",
                   "Listed Date & Time",
                   "3 Stage Alert",
@@ -357,7 +365,12 @@ const ProductList: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {productList?.map((product: any, index: number) => (
+              {productList?.map((product: any, index: number) => {
+                // Debug: Log the first product to see its structure
+                if (index === 0) {
+                  console.log('Product structure:', product);
+                }
+                return (
                 <tr
                   key={index}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
@@ -438,6 +451,17 @@ const ProductList: React.FC = () => {
                       </button>                      
                     </div>
                   </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        (product.isDeleted || false)
+                          ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                      }`}
+                    >
+                      {(product.isDeleted || false) ? 'Deleted' : 'Active'}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
                     {product.owner.name}
                   </td>
@@ -491,7 +515,8 @@ const ProductList: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           {totalProducts > 1 && (
