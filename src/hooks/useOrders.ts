@@ -182,7 +182,7 @@ export const useOrders = () => {
       setLoading(true);
       const response = await globalRequest(
         apiRoutes.orderStatusUpdate(orderId),
-        'patch',
+        'put',
         params
       );
       
