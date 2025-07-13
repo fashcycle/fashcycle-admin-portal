@@ -344,13 +344,24 @@ const ProductView: React.FC = () => {
             ))}
           </select> */}
 
-          {/* create button for delete product with red color */}
-          <button
-            onClick={handleDelistProduct}
-            className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-red-500 text-white hover:bg-red-600 transition-colors"
-          >
-            Delete Product
-          </button>
+          {/* create button for delete product with red color - only show if not deleted */}
+          {!(productDetail?.isDeleted) && (
+            <button
+              onClick={handleDelistProduct}
+              className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-red-500 text-white hover:bg-red-600 transition-colors"
+            >
+              Delete Product
+            </button>
+          )}
+          
+          {/* Show deleted status if product is deleted */}
+          {(productDetail?.isDeleted) && (
+            <div className="w-full p-3 rounded-lg border border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-center">
+              <span className="text-red-800 dark:text-red-400 font-medium">
+                Product has been deleted
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

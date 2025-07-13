@@ -45,14 +45,32 @@ const OrderList: React.FC = () => {
 
   const getOrderStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case "order_confirmed":
-        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
       case "waiting_confirmation":
         return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
-      case "cancelled":
-        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "order_confirmed":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "leave_for_pickup":
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
+      case "picked_up":
+        return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400";
+      case "prepared_for_shipping":
+        return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-400";
+      case "out_for_delivery":
+        return "bg-pink-100 text-pink-800 dark:bg-pink-900/20 dark:text-pink-400";
       case "delivered":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "return_initiated":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "return_pickup_scheduled":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "return_picked_from_user":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "return_in_transit_to_owner":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "return_delivered_to_owner":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "return_completed":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
     }
@@ -77,6 +95,23 @@ const OrderList: React.FC = () => {
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
       case "sell":
         return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+
+  const getSecurityStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      case "deposited":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "partially_refunded":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "withheld":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "refunded":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
     }
@@ -112,10 +147,19 @@ const OrderList: React.FC = () => {
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           >
             <option value="">All Status</option>
-            <option value="PENDING">Pending</option>
+            <option value="WAITING_CONFIRMATION">Waiting Confirmation</option>
             <option value="ORDER_CONFIRMED">Order Confirmed</option>
+            <option value="LEAVE_FOR_PICKUP">Leave for Pickup</option>
+            <option value="PICKED_UP">Picked Up</option>
+            <option value="PREPARED_FOR_SHIPPING">Prepared for Shipping</option>
+            <option value="OUT_FOR_DELIVERY">Out for Delivery</option>
             <option value="DELIVERED">Delivered</option>
-            <option value="CANCELLED">Cancelled</option>
+            <option value="RETURN_INITIATED">Return Initiated</option>
+            <option value="RETURN_PICKUP_SCHEDULED">Return Pickup Scheduled</option>
+            <option value="RETURN_PICKED_FROM_USER">Return Picked from User</option>
+            <option value="RETURN_IN_TRANSIT_TO_OWNER">Return in Transit to Owner</option>
+            <option value="RETURN_DELIVERED_TO_OWNER">Return Delivered to Owner</option>
+            <option value="RETURN_COMPLETED">Return Completed</option>
           </select>
           <select
             value={paymentStatusFilter}
@@ -179,8 +223,8 @@ const OrderList: React.FC = () => {
                         <div className="flex-shrink-0 h-12 w-12">
                           <img
                             className="h-12 w-12 rounded-lg object-cover"
-                            src={order.items[0]?.product?.productImage?.frontLook || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAyOEMyNi4yMDkxIDI4IDI4IDI2LjIwOTEgMjggMjRDMjggMjEuNzkwOSAyNi4yMDkxIDIwIDI0IDIwQzIxLjc5MDkgMjAgMjAgMjEuNzkwOSAyMCAyNEMyMCAyNi4yMDkxIDIxLjc5MDkgMjggMjQgMjhaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzMkMyNi4yMDkxIDMyIDI4IDMwLjIwOTEgMjggMjhDMjggMjUuNzkwOSAyNi4yMDkxIDI0IDI0IDI0QzIxLjc5MDkgMjQgMjAgMjUuNzkwOSAyMCAyOEMyMCAzMC4yMDkxIDIxLjc5MDkgMzIgMjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzNkMyNi4yMDkxIDM2IDI4IDM0LjIwOTEgMjggMzJDMjggMjkuNzkwOSAyNi4yMDkxIDI4IDI0IDI4QzIxLjc5MDkgMjggMjAgMjkuNzkwOSAyMCAzMkMyMCAzNC4yMDkxIDIxLjc5MDkgMzYgMjQgMzZaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo='}
-                            alt={order.items[0]?.product?.productName}
+                            src={order.items?.product?.productImage?.frontLook || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAyOEMyNi4yMDkxIDI4IDI4IDI2LjIwOTEgMjggMjRDMjggMjEuNzkwOSAyNi4yMDkxIDIwIDI0IDIwQzIxLjc5MDkgMjAgMjAgMjEuNzkwOSAyMCAyNEMyMCAyNi4yMDkxIDIxLjc5MDkgMjggMjQgMjhaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzMkMyNi4yMDkxIDMyIDI4IDMwLjIwOTEgMjggMjhDMjggMjUuNzkwOSAyNi4yMDkxIDI0IDI0IDI0QzIxLjc5MDkgMjQgMjAgMjUuNzkwOSAyMCAyOEMyMCAzMC4yMDkxIDIxLjc5MDkgMzIgMjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzNkMyNi4yMDkxIDM2IDI4IDM0LjIwOTEgMjggMzJDMjggMjkuNzkwOSAyNi4yMDkxIDI4IDI0IDI4QzIxLjc5MDkgMjggMjAgMjkuNzkwOSAyMCAzMkMyMCAzNC4yMDkxIDIxLjc5MDkgMzYgMjQgMzZaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo='}
+                            alt={order.items?.product?.productName}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNCAyOEMyNi4yMDkxIDI4IDI4IDI2LjIwOTEgMjggMjRDMjggMjEuNzkwOSAyNi4yMDkxIDIwIDI0IDIwQzIxLjc5MDkgMjAgMjAgMjEuNzkwOSAyMCAyNEMyMCAyNi4yMDkxIDIxLjc5MDkgMjggMjQgMjhaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzMkMyNi4yMDkxIDMyIDI4IDMwLjIwOTEgMjggMjhDMjggMjUuNzkwOSAyNi4yMDkxIDI0IDI0IDI0QzIxLjc5MDkgMjQgMjAgMjUuNzkwOSAyMCAyOEMyMCAzMC4yMDkxIDIxLjc5MDkgMzIgMjQgMzJaIiBmaWxsPSIjOUI5QkEwIi8+CjxwYXRoIGQ9Ik0yNCAzNkMyNi4yMDkxIDM2IDI4IDM0LjIwOTEgMjggMzJDMjggMjkuNzkwOSAyNi4yMDkxIDI4IDI0IDI4QzIxLjc5MDkgMjggMjAgMjkuNzkwOSAyMCAzMkMyMCAzNC4yMDkxIDIxLjc5MDkgMzYgMjQgMzZaIiBmaWxsPSIjOUI5QkEwIi8+Cjwvc3ZnPgo=';
@@ -189,17 +233,17 @@ const OrderList: React.FC = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {order.items[0]?.product?.productName || 'N/A'}
+                            {order.items?.product?.productName || 'N/A'}
                           </div>
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {order.items.length > 1 ? `${order.items.length} items` : '1 item'}
+                            1 item
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(order.items[0]?.type)}`}>
-                        {order.items[0]?.type || 'N/A'}
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(order.items?.type)}`}>
+                        {order.items?.type || 'N/A'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -218,8 +262,8 @@ const OrderList: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full`}>
-                        
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getSecurityStatusColor(order.securityStatus)}`}>
+                        {order.securityStatus?.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

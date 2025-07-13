@@ -9,9 +9,11 @@ const OrderDetail: React.FC = () => {
   const navigate = useNavigate();
   const [paymentStatus, setPaymentStatus] = useState('completed');
   const [deliveryStatus, setDeliveryStatus] = useState('returned');
+  const [securityStatus, setSecurityStatus] = useState('PENDING');
   const [adminNotes, setAdminNotes] = useState('');
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const { orderDetail, getOrderDetail, updateOrderStatus } = useOrders();
 
@@ -88,21 +90,21 @@ const OrderDetail: React.FC = () => {
         convenienceFee: orderDetail.convenienceFee || 0,
         product: {
           ...prevOrder.product,
-          id: orderDetail.items?.[0]?.productId || prevOrder.product.id,
-          name: orderDetail.items?.[0]?.product?.productName || prevOrder.product.name,
-          type: orderDetail.items?.[0]?.type || prevOrder.product.type,
+          id: orderDetail.items?.productId || prevOrder.product.id,
+          name: orderDetail.items?.product?.productName || prevOrder.product.name,
+          type: orderDetail.items?.type || prevOrder.product.type,
           price: orderDetail.totalAmount || prevOrder.product.price,
-          image: orderDetail.items?.[0]?.product?.productImage?.frontLook || prevOrder.product.image
+          image: orderDetail.items?.product?.productImage?.frontLook || prevOrder.product.image
         },
         user: {
           name: orderDetail.user?.name || '',
           email: orderDetail.user?.email || '',
-          phone: orderDetail.user?.phone || ''
+          phone: orderDetail.user?.mobile || ''
         },
         seller: {
           name: orderDetail.seller?.name || '',
           email: orderDetail.seller?.email || '',
-          phone: orderDetail.seller?.phone || ''
+          phone: orderDetail.seller?.mobile || ''
         },
         timeline: {
           orderPlaced: helpers?.formatDateFunction(orderDetail.orderedAt, "dd/mm/yyyy", true) || prevOrder.timeline.orderPlaced,
@@ -119,6 +121,7 @@ const OrderDetail: React.FC = () => {
       
       setPaymentStatus(orderDetail.paymentStatus || 'completed');
       setDeliveryStatus(orderDetail.status || 'returned');
+      setSecurityStatus(orderDetail.securityStatus || 'PENDING');
       setAdminNotes(orderDetail.adminNotes || '');
     }
   }, [orderDetail]);
@@ -139,16 +142,31 @@ const OrderDetail: React.FC = () => {
     }
   };
 
-  const handleStatusUpdate = async (type: 'payment' | 'delivery') => {
+  const handleStatusUpdate = async (type: 'payment' | 'delivery' | 'security') => {
     if (!id) return;
 
     try {
-      const status = type === 'payment' ? paymentStatus : deliveryStatus;
-      await updateOrderStatus(id, { status });
-      // Show success message or handle success
+      if (type === 'security') {
+        await updateOrderStatus(id, { securityStatus });
+        setSuccessMessage('Security status updated successfully!');
+      } else {
+        const status = type === 'payment' ? paymentStatus : deliveryStatus;
+        await updateOrderStatus(id, { status });
+        setSuccessMessage('Order status updated successfully!');
+      }
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
     } catch (error) {
       console.error('Error updating order status:', error);
-      // Show error message or handle error
+      setError('Failed to update status. Please try again.');
+      
+      // Clear error message after 3 seconds
+      setTimeout(() => {
+        setError('');
+      }, 3000);
     }
   };
 
@@ -211,6 +229,23 @@ const OrderDetail: React.FC = () => {
     }
   };
 
+  const getSecurityStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400";
+      case "deposited":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "partially_refunded":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
+      case "withheld":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400";
+      case "refunded":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    }
+  };
+
   if (dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -240,6 +275,42 @@ const OrderDetail: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Success Message */}
+      {successMessage && (
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                {successMessage}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                {error}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -521,9 +592,31 @@ const OrderDetail: React.FC = () => {
               </h3>
             </div>
             <div className="space-y-4">
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(paymentStatus)}`}>
-                {/* {paymentStatus} */}
-              </span>              
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSecurityStatusColor(securityStatus)}`}>
+                {securityStatus?.replace('_', ' ')}
+              </span>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Update Security Status
+                </label>
+                <select
+                  value={securityStatus}
+                  onChange={(e) => setSecurityStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="DEPOSITED">Deposited</option>
+                  <option value="PARTIALLY_REFUNDED">Partially Refunded</option>
+                  <option value="WITHHELD">Withheld</option>
+                  <option value="REFUNDED">Refunded</option>
+                </select>
+                <button
+                  onClick={() => handleStatusUpdate('security')}
+                  className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Update Security Status
+                </button>
+              </div>
             </div>
           </div>
 
