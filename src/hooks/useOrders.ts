@@ -16,15 +16,13 @@ interface OrderItem {
   product: {
     id: string;
     productName: string;
+    mobileNumber: string;
+    categoryName: string;
+    size: string;
+    sizeFlexibility: string;
+    color: string;
     productImage: {
-      id: string;
-      frontLook: string | null;
-      backLook: string | null;
-      sideLook: string | null;
-      closeUpLook: string | null;
-      optional1: string | null;
-      optional2: string | null;
-      productId: string;
+      frontLook: string;
     };
   };
 }
@@ -37,29 +35,30 @@ interface Order {
   totalAmount: number;
   status: string;
   paymentStatus: string;
-  shippingAddressId: string;
-  pickupAddressId: string;
+  securityStatus: string;
   razorpayOrderId: string;
   razorpayPaymentId: string;
+  pickupAddressId: string;
+  shippingAddressId: string;
+  deliveredAt: string;
+  returnDeliveredAt: string;
   orderedAt: string;
   updatedAt: string;
-  deliveredAt: string | null;
-  returnDeliveredAt: string | null;
   securityAmount: number;
   convenienceFee: number;
-  items: OrderItem[];
+  items: OrderItem;
   // Additional fields for order detail
   user?: {
     id: string;
     name: string;
     email: string;
-    phone: string;
+    mobile: string;
   };
   seller?: {
     id: string;
     name: string;
     email: string;
-    phone: string;
+    mobile: string;
   };
   shippingAddress?: {
     id: string;
@@ -95,9 +94,9 @@ interface Order {
 }
 
 interface OrderListResponse {
-  orders: Order[];
+  list: Order[];
   total: number;
-  currentPage: number;
+  page: number;
   limit: number;
 }
 
@@ -110,7 +109,8 @@ interface GetOrdersParams {
 }
 
 interface UpdateOrderStatusParams {
-  status: string;
+  status?: string;
+  securityStatus?: string;
 }
 
 export const useOrders = () => {
@@ -139,9 +139,9 @@ export const useOrders = () => {
       );
       
       const data: OrderListResponse = response;
-      setOrderList(data.orders || []);
+      setOrderList(data.list || []);
       setTotalOrders(data.total || 0);
-      setCurrentPage(data.currentPage || 1);
+      setCurrentPage(data.page || 1);
       return data;
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -191,7 +191,8 @@ export const useOrders = () => {
         if (orderDetail && orderDetail.id === orderId) {
           setOrderDetail({
             ...orderDetail,
-            status: params.status
+            ...(params.status && { status: params.status }),
+            ...(params.securityStatus && { securityStatus: params.securityStatus })
           });
         }
         return response;

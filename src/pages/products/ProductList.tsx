@@ -15,6 +15,7 @@ interface Filters {
   category: string;
   listingType: string;
   status: string;
+  referral_code: string;
   date: string;
 }
 
@@ -27,17 +28,6 @@ const ProductList: React.FC = () => {
     { label: "Available", value: "available" },
     { label: "Not Available", value: "not_available" },
     { label: "Deleted", value: "deleted" },
-  ];
-
-  const categories = [
-    { label: "Gown", value: "gown" },
-    { label: "Sahara Set", value: "sharara-set" },
-    { label: "Ethnic", value: "Ethnic" },
-    { label: "Saree", value: "Saree" },
-    { label: "Lehenga", value: "lehenga" },
-    { label: "Anarkali", value: "anarkali" },
-    { label: "Rajasthan Poshak", value: "rajasthan_poshak" },
-    { label: "Other", value: "other" },
   ];
 
   const types = [
@@ -90,6 +80,7 @@ const ProductList: React.FC = () => {
     category: "",
     listingType: "",
     status: "",
+    referral_code: "",
     date: "",
   });
 
@@ -114,14 +105,20 @@ const ProductList: React.FC = () => {
 
 
 
-  const { productList, getProductList, totalProducts } = useProduct();
+  const { productList, getProductList, totalProducts, getAllReferralCodes, referralCodes } = useProduct();
   const { updateProductStatus } = useProductMutations();
   const { getAllCategories, allCategories } = useCategory();
 
   //get category list for filter
   useEffect(() => {
     getAllCategories();
+    getAllReferralCodes();
   }, []);
+
+  // Debug: Log referral codes
+  useEffect(() => {
+    console.log("Referral codes:", referralCodes);
+  }, [referralCodes]);
 
   // console.log("allCategories", allCategories);
 
@@ -321,6 +318,28 @@ const ProductList: React.FC = () => {
                   {status.label}
                 </option>
               ))}
+            </select>
+            <ChevronDown className="h-4 w-4 text-gray-400 absolute right-2 top-3.5 pointer-events-none" />
+          </div>
+
+          <div className="relative">
+            <select
+              value={filters.referral_code}
+              onChange={(e) =>
+                setFilters({ ...filters, referral_code: e.target.value })
+              }
+              className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">All Referral Codes</option>
+              {referralCodes && referralCodes.length > 0 ? (
+                referralCodes.map((referralCode) => (
+                  <option key={referralCode.id} value={referralCode.code}>
+                    {referralCode.code} - {referralCode.referrerName}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>Loading referral codes...</option>
+              )}
             </select>
             <ChevronDown className="h-4 w-4 text-gray-400 absolute right-2 top-3.5 pointer-events-none" />
           </div>

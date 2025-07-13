@@ -41,6 +41,7 @@ interface ProductDetail {
   images: string[];
   flexibility: string;
   mobileNumber: string;
+  isDeleted: boolean;
 }
 
 interface GetProductListParams {
@@ -50,6 +51,7 @@ interface GetProductListParams {
   status?: string;
   category?: string;
   listingType?: string;
+  referral_code?: string;
 }
 
 interface ProductDetailToUpdate {
@@ -87,6 +89,7 @@ export const useProduct = () => {
   const [productDetailToUpdate, setProductDetailToUpdate] = useState<ProductDetailToUpdate | null>(null);
   const [totalProducts, setTotalProducts] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [referralCodes, setReferralCodes] = useState<any[]>([]);
   const { setLoading } = useAppState();
 
   // Common product options that can be used across the application
@@ -121,6 +124,24 @@ export const useProduct = () => {
     return ['0cm','1cm','1.5cm','2cm','2.5cm','3cm','3.5cm', '3+cm'];
   };
 
+  const getAllReferralCodes = async () => {
+    try {
+      const response = await globalRequest(
+        apiRoutes.referralCodeList,
+        'get'
+      );
+      console.log('Referral codes API response:', response);
+      
+      // Handle different possible response structures
+      const codes = response.list || response.data || response || [];
+      setReferralCodes(codes);
+      return codes;
+    } catch (error) {
+      console.error('Failed to fetch referral codes:', error);
+      throw error;
+    }
+  };
+
   const getProductList = async (params: GetProductListParams = {}) => {
     try {
       setLoading(true);
@@ -136,6 +157,7 @@ export const useProduct = () => {
             category: params.category || null,
             status: params.status || null,
             listingType: params.listingType || null,
+            referral_code: params.referral_code || null,
           }
         }
       );
@@ -179,7 +201,8 @@ export const useProduct = () => {
         images: helpers.extractUrls(product.productImage),
         mobileNumber: product.mobileNumber,
         flexibility: product.sizeFlexibility,
-        address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.landmark}`
+        address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.landmark}`,
+        isDeleted: product.isDeleted || false
       }
 
       //if video is present then add video to the images array
@@ -305,11 +328,13 @@ export const useProduct = () => {
     totalProducts,
     currentPage,
     productDetailToUpdate,
+    referralCodes,
     getProductSizesFlexibility,
 
     // Functions
     getProductList,
     getProductDetail,
+    getAllReferralCodes,
     getProductColors,
     getProductSizes
   };
