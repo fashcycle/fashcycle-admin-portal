@@ -49,9 +49,9 @@ interface GetProductListParams {
   limit?: number;
   search?: string;
   status?: string;
-  category?: string;
+  categoryId?: string;
   listingType?: string;
-  referral_code?: string;
+  referralCodeId?: string;
 }
 
 interface ProductDetailToUpdate {
@@ -154,10 +154,10 @@ export const useProduct = () => {
             page: params.page || 1,
             limit: params.limit || 10,
             search: params.search || '',
-            category: params.category || null,
+            categoryId: params.categoryId || null,
             status: params.status || null,
             listingType: params.listingType || null,
-            referral_code: params.referral_code || null,
+            referralCodeId: params.referralCodeId || null,
           }
         }
       );

@@ -12,10 +12,10 @@ interface Filters {
   page: number;
   limit: number;
   search: string;
-  category: string;
+  categoryId: string;
   listingType: string;
   status: string;
-  referral_code: string;
+  referralCodeId: string;
   date: string;
 }
 
@@ -77,10 +77,10 @@ const ProductList: React.FC = () => {
     page: 1,
     limit: 10,
     search: "",
-    category: "",
+    categoryId: "",
     listingType: "",
     status: "",
-    referral_code: "",
+    referralCodeId: "",
     date: "",
   });
 
@@ -153,8 +153,8 @@ const ProductList: React.FC = () => {
   const handleSubmit = () => {
     if (callPopup.selectedOption && callPopup.productId) {
       // Handle the submission logic here
-      console.log('Product ID:', callPopup.productId);
-      console.log('Selected Option:', callPopup.selectedOption);
+      // console.log('Product ID:', callPopup.productId);
+      // console.log('Selected Option:', callPopup.selectedOption);
       
       // Add your API call or other logic here
       
@@ -270,9 +270,9 @@ const ProductList: React.FC = () => {
 
           <div className="relative">
             <select
-              value={filters.category}
+              value={filters.categoryId}
               onChange={(e) =>
-                setFilters({ ...filters, category: e.target.value })
+                setFilters({ ...filters, categoryId: e.target.value })
               }
               className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             >
@@ -324,16 +324,16 @@ const ProductList: React.FC = () => {
 
           <div className="relative">
             <select
-              value={filters.referral_code}
+              value={filters.referralCodeId}
               onChange={(e) =>
-                setFilters({ ...filters, referral_code: e.target.value })
+                setFilters({ ...filters, referralCodeId: e.target.value })
               }
               className="appearance-none px-4 py-2.5 pr-8 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             >
               <option value="">All Referral Codes</option>
               {referralCodes && referralCodes.length > 0 ? (
                 referralCodes.map((referralCode) => (
-                  <option key={referralCode.id} value={referralCode.code}>
+                  <option key={referralCode.id} value={referralCode.id}>
                     {referralCode.code} - {referralCode.referrerName}
                   </option>
                 ))
