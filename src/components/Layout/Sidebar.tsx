@@ -11,7 +11,9 @@ import {
   X,
   Store,
   Users,
-  Gift
+  Gift,
+  MapPin,
+  Image
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -46,6 +48,16 @@ const Sidebar: React.FC = () => {
       name: 'Orders',
       icon: ShoppingCart,
       href: '/dashboard/orders'
+    },
+    {
+      name: 'Pincodes',
+      icon: MapPin,
+      href: '/dashboard/pincodes'
+    },
+    {
+      name: 'Hero Images',
+      icon: Image,
+      href: '/dashboard/hero-images'
     },
     {
       name: 'Users',

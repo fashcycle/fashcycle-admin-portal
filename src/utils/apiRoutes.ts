@@ -55,6 +55,20 @@ const apiRoutes = {
   referralCodeUpdate: (id: string) => `/admin/referral-codes/${id}`,
   referralCodeDelete: (id: string) => `/admin/referral-codes/${id}`,
 
+  //pincode
+  pincodeList: '/admin/pincode',
+  pincodeDetail: (id: string) => `/admin/pincode/${id}`,
+  pincodeCreate: '/admin/pincode/create',
+  pincodeUpdate: (id: string) => `/admin/pincode/${id}`,
+  pincodeDelete: (id: string) => `/admin/pincode/${id}`,
+
+  //hero image
+  heroImageList: '/admin/hero-image',
+  heroImageDetail: (id: string) => `/admin/hero-image/${id}`,
+  heroImageCreate: '/admin/hero-image',
+  heroImageUpdate: (id: string) => `/admin/hero-image/${id}`,
+  heroImageDelete: (id: string) => `/admin/hero-image/${id}`,
+
 };
 
 export default apiRoutes;

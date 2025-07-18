@@ -22,6 +22,8 @@ import CategoryEdit from './pages/categories/CategoryEdit';
 import CategoryCreate from './pages/categories/CategoryCreate';
 import OrderList from './pages/orders/OrderList';
 import OrderDetail from './pages/orders/OrderDetail';
+import PincodeList from './pages/pincodes/PincodeList';
+import HeroImageList from './pages/hero-images/HeroImageList';
 import Notifications from './pages/Notifications';
 import UserDetail from './pages/users/UserDetail';
 import Users from './pages/users/Users';
@@ -57,6 +59,8 @@ function App() {
                   <Route path="categories/:id/edit" element={<CategoryEdit />} />
                   <Route path="orders" element={<OrderList />} />
                   <Route path="orders/:id" element={<OrderDetail />} />
+                  <Route path="pincodes" element={<PincodeList />} />
+                  <Route path="hero-images" element={<HeroImageList />} />
                   <Route path="users" element={<Users/>} />
                   <Route path="users/:id" element={<UserDetail/>} />
                   <Route path="referral-codes" element={<ReferralCodeList />} />
