@@ -420,18 +420,12 @@ export const useProductMutations = () => {
   };
 
   const editProduct = async (productId: string, productData: FormData) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await globalRequest(
-        apiRoutes.productUpdate(productId),
-        'put',
-        productData
-      );
-      setMessage("Product updated successfully", "success");
+      const response = await globalRequest(apiRoutes.productUpdate(productId), 'put', productData);
       return response.data;
-    } catch (error: any) {
-      const message = error?.response?.data?.message || "Failed to update product";
-      setMessage(message, "error");
+    } catch (error) {
+      console.error('Error updating product:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -443,6 +437,51 @@ export const useProductMutations = () => {
     updateProduct,
     deleteProduct,
     updateProductStatus,
-    editProduct
+    editProduct,
+  };
+};
+
+// Hook for deleted products
+export const useDeletedProducts = () => {
+  const [deletedProductList, setDeletedProductList] = useState<Product[]>([]);
+  const [totalDeletedProducts, setTotalDeletedProducts] = useState(0);
+  const [currentDeletedPage, setCurrentDeletedPage] = useState(1);
+  const { setLoading } = useAppState();
+
+  const getDeletedProductList = async (params: GetProductListParams = {}) => {
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
+      
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.limit) queryParams.append('limit', params.limit.toString());
+      if (params.search) queryParams.append('search', params.search);
+      if (params.status) queryParams.append('status', params.status);
+      if (params.categoryId) queryParams.append('categoryId', params.categoryId);
+      if (params.listingType) queryParams.append('listingType', params.listingType);
+      if (params.referralCodeId) queryParams.append('referralCodeId', params.referralCodeId);
+
+      const response = await globalRequest(`${apiRoutes.deletedProducts}?${queryParams}`, 'get');
+      
+      if (response.success) {
+        setDeletedProductList(response.data?.products || response.products || []);
+        setTotalDeletedProducts(response.data?.total || response.total || 0);
+        setCurrentDeletedPage(response.data?.currentPage || response.currentPage || 1);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching deleted products:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    deletedProductList,
+    totalDeletedProducts,
+    currentDeletedPage,
+    getDeletedProductList,
   };
 };

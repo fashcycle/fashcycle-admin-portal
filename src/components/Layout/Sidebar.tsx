@@ -43,6 +43,10 @@ const Sidebar: React.FC = () => {
       name: 'Products',
       icon: Package,
       href: '/dashboard/products',
+      children: [
+        { name: 'All Products', href: '/dashboard/products' },
+        { name: 'Deleted Products', href: '/dashboard/deleted-products' }
+      ]
     },
     {
       name: 'Orders',

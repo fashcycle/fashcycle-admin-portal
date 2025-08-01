@@ -17,6 +17,7 @@ const apiRoutes = {
   productDelete: (id: string) => `/admin/products/${id}/delete`,
   productUpdateStatus: (id: string) => `/admin/products/${id}/status`,
   userProducts: (userId: string) => `/admin/products/user/${userId}`,
+  deletedProducts: '/admin/products/deleted',
 
   //category
   allCategoryList: '/products/categories',

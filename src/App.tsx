@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import ProductList from './pages/products/ProductList';
 import ProductView from './pages/products/ProductView';
 import ProductEdit from './pages/products/ProductEdit';
+import DeletedProductsPage from './pages/products/DeletedProductList';
 import CategoryList from './pages/categories/CategoryList';
 import CategoryView from './pages/categories/CategoryView';
 import CategoryEdit from './pages/categories/CategoryEdit';
@@ -53,6 +54,7 @@ function App() {
                   <Route path="products" element={<ProductList />} />
                   <Route path="products/:id/view" element={<ProductView />} />
                   <Route path="products/:id/edit" element={<ProductEdit />} />
+                  <Route path="deleted-products" element={<DeletedProductsPage />} />
                   <Route path="categories" element={<CategoryList />} />
                   <Route path="categories/create" element={<CategoryCreate />} />
                   <Route path="categories/:id" element={<CategoryView />} />
