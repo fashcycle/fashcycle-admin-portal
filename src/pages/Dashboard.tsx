@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, ShoppingCart, Users, TrendingUp, Clock, CheckCircle, AlertCircle, DollarSign } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, Clock, CheckCircle, AlertCircle, IndianRupee } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   // Mock data for dashboard
@@ -33,7 +33,7 @@ const Dashboard: React.FC = () => {
       value: '$89,425',
       change: '+18%',
       changeType: 'increase',
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'yellow'
     }
   ];
@@ -191,7 +191,7 @@ const Dashboard: React.FC = () => {
                       {order.date}
                     </span>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                      {order.status}
+                      {order.status.replace(/_/g, ' ')}
                     </span>
                   </div>
                 </div>

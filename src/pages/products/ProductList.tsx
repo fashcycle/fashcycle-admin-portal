@@ -439,7 +439,7 @@ const ProductList: React.FC = () => {
                         )}`}
                         title="Click to manage status"
                       >
-                        {product.status}
+                        {product.status.replace(/_/g, ' ').charAt(0).toUpperCase() + product.status.replace(/_/g, ' ').slice(1)}
                       </button>
                     ) : (
                       <span
@@ -447,7 +447,7 @@ const ProductList: React.FC = () => {
                           product.status
                         )}`}
                       >
-                        {product.status}
+                        {product.status.replace(/_/g, ' ')}
                       </span>
                     )}
                   </td>
