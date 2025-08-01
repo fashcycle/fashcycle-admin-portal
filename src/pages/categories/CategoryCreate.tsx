@@ -18,6 +18,7 @@ const CategoryCreate: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Generate slug from name
   const generateSlug = (name: string) => {
@@ -32,6 +33,51 @@ const CategoryCreate: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size should be less than 5MB');
+        return;
+      }
+
+      setCategory(prev => ({
+        ...prev,
+        image: file
+      }));
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError('');
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      
       // Validate file type
       if (!file.type.startsWith('image/')) {
         setError('Please select a valid image file');
@@ -209,27 +255,49 @@ const CategoryCreate: React.FC = () => {
 
             {/* File Upload */}
             <div className="flex items-center justify-center w-full">
-              <label
-                htmlFor="image"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                  isDragOver
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600'
+                }`}
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <Upload className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" />
-                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    PNG, JPG, GIF up to 5MB
-                  </p>
-                </div>
-                <input
-                  id="image"
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
-              </label>
+                <label
+                  htmlFor="image"
+                  className="flex flex-col items-center justify-center w-full h-full cursor-pointer"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className={`w-8 h-8 mb-4 transition-colors ${
+                      isDragOver 
+                        ? 'text-blue-500' 
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`} />
+                    <p className={`mb-2 text-sm transition-colors ${
+                      isDragOver 
+                        ? 'text-blue-600 dark:text-blue-400' 
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      <span className="font-semibold">
+                        {isDragOver ? 'Drop your image here' : 'Click to upload'}
+                      </span>
+                      {!isDragOver && ' or drag and drop'}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      PNG, JPG, GIF up to 5MB
+                    </p>
+                  </div>
+                  <input
+                    id="image"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
+                </label>
+              </div>
             </div>
           </div>
 

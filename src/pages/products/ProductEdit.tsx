@@ -273,7 +273,12 @@ const ProductEdit: React.FC = () => {
   const downloadFile = (file: FileItem) => {
     const link = document.createElement('a');
     link.href = file.url;
-    link.download = file.name;
+    link.setAttribute('download', file.name || 'download');
+  
+    // This part helps for images to force download
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener');
+  
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

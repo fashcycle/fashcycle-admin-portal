@@ -740,7 +740,7 @@ const UserDetail: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProductStatusColor(product.status)}`}>
-                              {product.status}
+                              {product.status.replace(/_/g, ' ')}
                             </span>
                             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                               {product.isAvailability ? 'Available' : 'Not Available'}
@@ -892,7 +892,7 @@ const UserDetail: React.FC = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getOrderStatusColor(order.status)}`}>
-                              {order.status.replace('_', ' ')}
+                              {order.status.replace(/_/g, ' ')}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
