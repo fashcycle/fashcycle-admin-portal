@@ -141,8 +141,8 @@ interface Product {
 
 interface ProductListResponse {
   products: Product[];
-  totalItems: number;
-  page: number;
+  total: number;
+  currentPage: number;
   limit: number;
 }
 
@@ -435,8 +435,8 @@ export const useUser = () => {
       
       const data: ProductListResponse = response;
       setUserProducts(data.products || []);
-      setTotalProducts(data.totalItems || 0);
-      setCurrentProductPage(data.page || 1);
+      setTotalProducts(data.total || 0);
+      setCurrentProductPage(data.currentPage || 1);
       return data;
     } catch (error) {
       console.error('Failed to fetch user products:', error);
