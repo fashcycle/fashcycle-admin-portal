@@ -95,7 +95,14 @@ const UserDetail: React.FC = () => {
     if (id && activeTab === "products") {
       loadUserProducts();
     }
-  }, [id, activeTab, productPage, productSearch, productStatusFilter]);
+  }, [id, activeTab, productPage ]);
+
+    // Load products when component mounts or tab changes
+    useEffect(() => {
+      if (id && activeTab === "products") {
+        loadUserProducts(1);
+      }
+    }, [productSearch, productStatusFilter]);
 
   // Load orders when tab changes to orders
   useEffect(() => {
@@ -104,12 +111,12 @@ const UserDetail: React.FC = () => {
     }
   }, [id, activeTab, orderPage, orderSearch, orderStatusFilter]);
 
-  const loadUserProducts = async () => {
+  const loadUserProducts = async (page=productPage) => {
     if (!id) return;
     
     try {
       await getUserProducts(id, {
-        page: productPage,
+        page: page,
         limit: productLimit,
         search: productSearch,
         status: productStatusFilter,
@@ -132,12 +139,6 @@ const UserDetail: React.FC = () => {
     } catch (error) {
       console.error('Error loading user orders:', error);
     }
-  };
-
-  const handleProductSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setProductPage(1);
-    loadUserProducts();
   };
 
   const handleProductPageChange = (page: number) => {
@@ -645,7 +646,7 @@ const UserDetail: React.FC = () => {
             <div className="space-y-6">
               {/* Search and Filter */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <form onSubmit={handleProductSearch} className="flex-1">
+                <form className="flex-1">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
