@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, CreditCard, Truck, MapPin, Calendar, Edit } from 'lucide-react';
+import { ArrowLeft, Package, User, CreditCard, Truck, MapPin, Calendar, Edit, Clock, Download } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { helpers } from '../../utils/helper';
 
@@ -52,18 +52,9 @@ const OrderDetail: React.FC = () => {
       orderPlaced: '2024-01-20',
       estimatedDelivery: '2024-01-25'
     },
-    shippingAddress: '456 Fashion Avenue, Andheri East, Mumbai, Maharashtra - 400069',
-    pickupAddress: '123 Pickup Street, Andheri West, Mumbai, Maharashtra - 400058',
-    orderNotes: 'Handle with care - delicate embroidery work',
-    shippingProgress: [
-      { status: 'Order Placed', date: '2024-01-20', completed: true },
-      { status: 'Order Confirmed', date: '2024-01-20', completed: true },
-      { status: 'Packed', date: '2024-01-21', completed: true },
-      { status: 'Shipped', date: '2024-01-22', completed: true },
-      { status: 'Out for Delivery', date: '2024-01-24', completed: true },
-      { status: 'Delivered', date: '2024-01-25', completed: true },
-      { status: 'Returned', date: '2024-01-28', completed: true }
-    ]
+         shippingAddress: '456 Fashion Avenue, Andheri East, Mumbai, Maharashtra - 400069',
+     pickupAddress: '123 Pickup Street, Andheri West, Mumbai, Maharashtra - 400058',
+     orderNotes: 'Handle with care - delicate embroidery work'
   });
 
   useEffect(() => {
@@ -149,9 +140,11 @@ const OrderDetail: React.FC = () => {
       if (type === 'security') {
         await updateOrderStatus(id, { securityStatus });
         setSuccessMessage('Security status updated successfully!');
+      } else if (type === 'payment') {
+        await updateOrderStatus(id, { paymentStatus });
+        setSuccessMessage('Payment status updated successfully!');
       } else {
-        const status = type === 'payment' ? paymentStatus : deliveryStatus;
-        await updateOrderStatus(id, { status });
+        await updateOrderStatus(id, { status: deliveryStatus });
         setSuccessMessage('Order status updated successfully!');
       }
       
@@ -176,6 +169,22 @@ const OrderDetail: React.FC = () => {
     setAdminNotes('');
   };
 
+  const handleDownloadInvoice = () => {
+    if (!id) return;
+    
+    // Create download link for invoice PDF
+    const downloadUrl = `https://api.fashcycle.com/admin/orders/${id}/invoice`;
+    
+    // Create a temporary link element and trigger download
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = `invoice-${orderDetail?.orderNumber || id}.pdf`;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       // Payment statuses
@@ -183,6 +192,14 @@ const OrderDetail: React.FC = () => {
         return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+      case 'processing':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+      case 'withheld':
+        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+      case 'adjusted':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
+      case 'earned':
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
       case 'refunded':
         return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
       
@@ -311,18 +328,28 @@ const OrderDetail: React.FC = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link
-            to="/dashboard/orders"
-            className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Back to Orders</span>
-          </Link>
-        </div>
-      </div>
+             {/* Header */}
+       <div className="flex items-center justify-between">
+         <div className="flex items-center space-x-4">
+           <Link
+             to="/dashboard/orders"
+             className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+           >
+             <ArrowLeft className="h-5 w-5" />
+             <span>Back to Orders</span>
+           </Link>
+         </div>
+         
+         {/* Invoice Download Button */}
+         <button
+           onClick={handleDownloadInvoice}
+           className="inline-flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+           title="Download Invoice PDF"
+         >
+           <Download className="h-4 w-4" />
+           <span>Download Invoice</span>
+         </button>
+       </div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -474,32 +501,40 @@ const OrderDetail: React.FC = () => {
               </div>
             </div>
 
-            {/* Shipping Progress */}
-            {/* <div className="space-y-4">
-              {order.shippingProgress.map((step, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <div className={`w-4 h-4 rounded-full ${
-                    step.completed 
-                      ? 'bg-blue-600' 
-                      : 'bg-gray-300 dark:bg-gray-600'
-                  }`} />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className={`font-medium ${
-                        step.completed 
-                          ? 'text-gray-900 dark:text-white' 
-                          : 'text-gray-500 dark:text-gray-400'
-                      }`}>
-                        {step.status}
-                      </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {step.date}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div> */}
+                         {/* Order History */}
+             <div className="space-y-4">
+               {orderDetail?.history && orderDetail.history.length > 0 ? (
+                 <div className="space-y-3">
+                   {orderDetail.history.map((historyItem, index) => (
+                     <div key={historyItem.id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                       <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center space-x-2">
+                             <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(historyItem.status)}`}>
+                               {historyItem.status.replace(/_/g, ' ')}
+                             </span>
+                             <span className="text-sm text-gray-500 dark:text-gray-400">
+                               by {historyItem.admin.name}
+                             </span>
+                           </div>
+                           <span className="text-xs text-gray-500 dark:text-gray-400">
+                             {helpers.formatDate(historyItem.changedAt)}
+                           </span>
+                         </div>
+                         <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                           {historyItem.admin.role} • {new Date(historyItem.changedAt).toLocaleTimeString()}
+                         </div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               ) : (
+                 <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                   No history available
+                 </div>
+               )}
+             </div>
           </div>
 
           {/* Order Timeline */}
@@ -580,7 +615,29 @@ const OrderDetail: React.FC = () => {
             <div className="space-y-4">
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(paymentStatus)}`}>
                 {paymentStatus}
-              </span>              
+              </span>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Update Payment Status
+                </label>
+                <select
+                  value={paymentStatus}
+                  onChange={(e) => setPaymentStatus(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="PROCESSING">Processing</option>
+                  <option value="WITHHELD">Withheld</option>
+                  <option value="ADJUSTED">Adjusted</option>
+                  <option value="EARNED">Earned</option>
+                </select>
+                <button
+                  onClick={() => handleStatusUpdate('payment')}
+                  className="mt-2 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Update Payment Status
+                </button>
+              </div>
             </div>
           </div>
           {/* Security Status */}
@@ -642,7 +699,8 @@ const OrderDetail: React.FC = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 >
                   <option value="WAITING_CONFIRMATION">Waiting Confirmation</option>
-                  <option value="ORDER_CONFIRMED">Order Confirmed</option>
+                  <option value="ORDER_CANCELLED">Order Cancelled</option>
+                  <option value="ORDER_CONFIRMED">Order Confirmed</option>                  
                   <option value="LEAVE_FOR_PICKUP">Leave for Pickup</option>
                   <option value="PICKED_UP">Picked Up</option>
                   <option value="PREPARED_FOR_SHIPPING">Prepared for Shipping</option>
@@ -692,6 +750,49 @@ const OrderDetail: React.FC = () => {
               >
                 Add Notes
               </button>
+            </div>
+          </div>
+
+          {/* Order History */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-2 mb-4">
+              <Clock className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Order History
+              </h3>
+            </div>
+            <div className="space-y-4">
+              {orderDetail?.history && orderDetail.history.length > 0 ? (
+                <div className="space-y-3">
+                  {orderDetail.history.map((historyItem, index) => (
+                    <div key={historyItem.id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(historyItem.status)}`}>
+                              {historyItem.status.replace(/_/g, ' ')}
+                            </span>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              by {historyItem.admin.name}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {helpers.formatDate(historyItem.changedAt)}
+                          </span>
+                        </div>
+                        <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                          {historyItem.admin.role} • {new Date(historyItem.changedAt).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                  No history available
+                </div>
+              )}
             </div>
           </div>
         </div>

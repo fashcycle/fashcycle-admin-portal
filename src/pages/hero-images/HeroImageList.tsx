@@ -234,7 +234,7 @@ const HeroImageList: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <div className="relative">
                         <img
-                          src={heroImage?.image}
+                          src={heroImage?.imageUrl}
                           alt={heroImage?.header}
                           className="w-16 h-12 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                         />
