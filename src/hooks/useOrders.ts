@@ -3,6 +3,19 @@ import globalRequest from '../services/globalRequest';
 import { useAppState } from '../contexts/AppStateContext';
 import apiRoutes from '../utils/apiRoutes';
 
+interface OrderHistory {
+  id: string;
+  orderId: string;
+  status: string;
+  changedAt: string;
+  updatedBy: string;
+  admin: {
+    id: string;
+    name: string;
+    role: string;
+  };
+}
+
 interface OrderItem {
   id: string;
   orderId: string;
@@ -91,6 +104,7 @@ interface Order {
     delivered?: string;
     returned?: string;
   };
+  history?: OrderHistory[];
 }
 
 interface OrderListResponse {
@@ -111,6 +125,7 @@ interface GetOrdersParams {
 interface UpdateOrderStatusParams {
   status?: string;
   securityStatus?: string;
+  paymentStatus?: string;
 }
 
 export const useOrders = () => {
@@ -192,7 +207,8 @@ export const useOrders = () => {
           setOrderDetail({
             ...orderDetail,
             ...(params.status && { status: params.status }),
-            ...(params.securityStatus && { securityStatus: params.securityStatus })
+            ...(params.securityStatus && { securityStatus: params.securityStatus }),
+            ...(params.paymentStatus && { paymentStatus: params.paymentStatus })
           });
         }
         return response;

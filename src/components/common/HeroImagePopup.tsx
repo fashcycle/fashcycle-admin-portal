@@ -7,7 +7,7 @@ interface HeroImagePopupProps {
   onSave: (heroImageData: FormData) => Promise<void>;
   heroImage: {
     id?: string;
-    image?: string;
+    imageUrl?: string;
     header: string;
     description: string;
   } | null;
@@ -43,8 +43,8 @@ const HeroImagePopup: React.FC<HeroImagePopupProps> = ({
         header: heroImage.header || '',
         description: heroImage.description || ''
       });
-      if (heroImage.image) {
-        setPreviewUrl(heroImage.image);
+      if (heroImage.imageUrl) {
+        setPreviewUrl(heroImage.imageUrl);
       }
       setErrors({});
     } else {

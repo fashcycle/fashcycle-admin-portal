@@ -366,9 +366,9 @@ const ProductList: React.FC = () => {
                   "Category",
                   "Type",
                   "Price",
+                  "Approved",
+                  // "Availability",
                   "Status",
-                  "Availability",
-                  "Deleted",
                   "Seller",
                   "Listed Date & Time",
                   "3 Stage Alert",
@@ -451,7 +451,7 @@ const ProductList: React.FC = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  {/* <td className="px-6 py-4">
                     <div className="flex items-center">
                       <button
                         onClick={() => handleAvailabilityToggle(product.id, product.isAvailability)}
@@ -469,7 +469,7 @@ const ProductList: React.FC = () => {
                         />
                       </button>                      
                     </div>
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

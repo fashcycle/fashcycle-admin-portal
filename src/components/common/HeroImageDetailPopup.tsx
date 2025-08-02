@@ -80,7 +80,7 @@ const HeroImageDetailPopup: React.FC<HeroImageDetailPopupProps> = ({
               </div>
               <div className="relative">
                 <img
-                  src={heroImageDetail.image}
+                  src={heroImageDetail.imageUrl}
                   alt={heroImageDetail.header}
                   className="w-full h-64 object-cover rounded-lg border border-gray-300 dark:border-gray-600"
                 />

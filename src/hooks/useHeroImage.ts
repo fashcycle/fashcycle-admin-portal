@@ -14,7 +14,7 @@ interface HeroImage {
 }
 
 interface HeroImageListResponse {
-  heroImages: HeroImage[];
+  data: HeroImage[];
   total: number;
   currentPage: number;
   limit: number;
@@ -62,7 +62,7 @@ export const useHeroImage = () => {
       );
       
       const data: HeroImageListResponse = response;
-      setHeroImageList(data.heroImages || []);
+      setHeroImageList(data.data || []);
       setTotalHeroImages(data.total || 0);
       setCurrentPage(data.currentPage || 1);
       return data;
@@ -139,12 +139,7 @@ export const useHeroImageMutations = () => {
       const response = await globalRequest(
         apiRoutes.heroImageUpdate(heroImageId),
         'put',
-        heroImageData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
+        heroImageData        
       );
       
       if (response.success) {
