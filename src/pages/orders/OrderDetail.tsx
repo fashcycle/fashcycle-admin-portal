@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, User, CreditCard, Truck, MapPin, Calendar, Edit, Clock, Download } from 'lucide-react';
+import { ArrowLeft, Package, User, CreditCard, Truck, MapPin, Calendar, Edit, Clock } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { helpers } from '../../utils/helper';
 
@@ -141,7 +141,7 @@ const OrderDetail: React.FC = () => {
         await updateOrderStatus(id, { securityStatus });
         setSuccessMessage('Security status updated successfully!');
       } else if (type === 'payment') {
-        await updateOrderStatus(id, { paymentStatus });
+        await updateOrderStatus(id, { rentalStatus:paymentStatus });
         setSuccessMessage('Payment status updated successfully!');
       } else {
         await updateOrderStatus(id, { status: deliveryStatus });
@@ -167,22 +167,6 @@ const OrderDetail: React.FC = () => {
     // Handle adding admin notes
     console.log('Adding notes:', adminNotes);
     setAdminNotes('');
-  };
-
-  const handleDownloadInvoice = () => {
-    if (!id) return;
-    
-    // Create download link for invoice PDF
-    const downloadUrl = `https://api.fashcycle.com/admin/orders/${id}/invoice`;
-    
-    // Create a temporary link element and trigger download
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = `invoice-${orderDetail?.orderNumber || id}.pdf`;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const getStatusColor = (status: string) => {
@@ -328,28 +312,18 @@ const OrderDetail: React.FC = () => {
         </div>
       )}
 
-             {/* Header */}
-       <div className="flex items-center justify-between">
-         <div className="flex items-center space-x-4">
-           <Link
-             to="/dashboard/orders"
-             className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-           >
-             <ArrowLeft className="h-5 w-5" />
-             <span>Back to Orders</span>
-           </Link>
-         </div>
-         
-         {/* Invoice Download Button */}
-         <button
-           onClick={handleDownloadInvoice}
-           className="inline-flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
-           title="Download Invoice PDF"
-         >
-           <Download className="h-4 w-4" />
-           <span>Download Invoice</span>
-         </button>
-       </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <Link
+            to="/dashboard/orders"
+            className="inline-flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            <span>Back to Orders</span>
+          </Link>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

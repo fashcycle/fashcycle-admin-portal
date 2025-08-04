@@ -126,6 +126,7 @@ interface UpdateOrderStatusParams {
   status?: string;
   securityStatus?: string;
   paymentStatus?: string;
+  rentalStatus?: string;
 }
 
 export const useOrders = () => {
@@ -192,7 +193,6 @@ export const useOrders = () => {
 
   const updateOrderStatus = async (orderId: string, params: UpdateOrderStatusParams) => {
     if (!orderId) return null;
-
     try {
       setLoading(true);
       const response = await globalRequest(

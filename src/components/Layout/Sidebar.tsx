@@ -13,7 +13,8 @@ import {
   Users,
   Gift,
   MapPin,
-  Image
+  Image,
+  Settings
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -77,6 +78,11 @@ const Sidebar: React.FC = () => {
       name: 'Notifications',
       icon: Bell,
       href: '/dashboard/notifications'
+    },
+    {
+      name: 'Platform Settings',
+      icon: Settings,
+      href: '/dashboard/platform-settings'
     }
   ];
 

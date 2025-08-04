@@ -70,6 +70,10 @@ const apiRoutes = {
   heroImageUpdate: (id: string) => `/admin/hero-image/${id}`,
   heroImageDelete: (id: string) => `/admin/hero-image/${id}`,
 
+  //platform settings
+  platformSettings: '/admin/platform-setting',
+  platformSettingUpdate: (id: string) => `/admin/platform-setting/${id}`,
+
 };
 
 export default apiRoutes;
