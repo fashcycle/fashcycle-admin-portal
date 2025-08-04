@@ -242,6 +242,32 @@ const ProductList: React.FC = () => {
     }
   };
 
+  // Handler for listing status toggle
+  const handleListingStatusToggle = async (productId: string, currentListingStatus: string) => {
+    const newStatus = currentListingStatus.toLowerCase() === 'active' ? 'inactive' : 'active';
+    const confirmMessage = currentListingStatus.toLowerCase() === 'active' 
+      ? 'Are you sure you want to make this product inactive?' 
+      : 'Are you sure you want to make this product active?';
+    
+    if (window.confirm(confirmMessage)) {
+      try {
+        const response = await globalRequest(
+          `/admin/products/${productId}/status`,
+          'put',
+          {
+            listingStatus: newStatus
+          }
+        );
+        
+        if (response.success) {
+          // Refresh the product list to show updated status
+          getProductList(filters);
+        }
+      } catch (error) {
+        console.error('Failed to update listing status:', error);
+      }
+    }
+  };
 
 
   return (
@@ -368,7 +394,8 @@ const ProductList: React.FC = () => {
                   "Price",
                   "Approved",
                   // "Availability",
-                  "Status",
+                  // "Status",
+                  "Listing Status",
                   "Seller",
                   "Listed Date & Time",
                   "3 Stage Alert",
@@ -469,17 +496,25 @@ const ProductList: React.FC = () => {
                         />
                       </button>                      
                     </div>
-                  </td> */}
+                  </td> */}                  
                   <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        (product.isDeleted || false)
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
-                          : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                      }`}
-                    >
-                      {(product.isDeleted || false) ? 'Deleted' : 'Active'}
-                    </span>
+                    {product.listingStatus ? (
+                      <button
+                        onClick={() => handleListingStatusToggle(product.id, product.listingStatus)}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                          product.listingStatus.toLowerCase() === 'active'
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                            : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                        }`}
+                        title="Click to toggle listing status"
+                      >
+                        {product.listingStatus.charAt(0).toUpperCase() + product.listingStatus.slice(1)}
+                      </button>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                        N/A
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
                     {product.owner.name}
