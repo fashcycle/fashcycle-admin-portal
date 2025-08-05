@@ -16,6 +16,7 @@ const apiRoutes = {
   productUpdate: (id: string) => `/admin/products/${id}/details`,
   productDelete: (id: string) => `/admin/products/${id}/delete`,
   productUpdateStatus: (id: string) => `/admin/products/${id}/status`,
+  productPermanentDelete: (id: string) => `/admin/products/${id}/permanent-delete`,
   userProducts: (userId: string) => `/admin/products/user/${userId}`,
   deletedProducts: '/admin/products/deleted',
 
@@ -73,6 +74,9 @@ const apiRoutes = {
   //platform settings
   platformSettings: '/admin/platform-setting',
   platformSettingUpdate: (id: string) => `/admin/platform-setting/${id}`,
+
+  //notifications
+  notifications: '/admin/notifications',
 
 };
 
