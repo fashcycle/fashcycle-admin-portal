@@ -42,6 +42,7 @@ interface ProductDetail {
   flexibility: string;
   mobileNumber: string;
   isDeleted: boolean;
+  listingStatus?: string;
 }
 
 interface GetProductListParams {
@@ -202,7 +203,8 @@ export const useProduct = () => {
         mobileNumber: product.mobileNumber,
         flexibility: product.sizeFlexibility,
         address: `${product?.address?.addressLine1}, ${product?.address?.addressLine2}, ${product?.address?.landmark}`,
-        isDeleted: product.isDeleted || false
+        isDeleted: product.isDeleted || false,
+        listingStatus: product.listingStatus || 'ACTIVE'
       }
 
       //if video is present then add video to the images array

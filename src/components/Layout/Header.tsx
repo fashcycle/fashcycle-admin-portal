@@ -1,14 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sun, Moon, LogOut, User, Settings, ChevronDown } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Sun, Moon, LogOut, User, Settings, ChevronDown, Bell } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useAppState } from '../../contexts/AppStateContext';
+import { useNotifications } from '../../hooks/useNotifications';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const { setMessage } = useAppState();
+  const { unreadCount, clearUnreadCount } = useNotifications();
+  const navigate = useNavigate();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -31,6 +34,11 @@ const Header: React.FC = () => {
     setMessage("Logged out successfully", "success");
   };
 
+  const handleNotificationClick = () => {
+    clearUnreadCount();
+    navigate('/dashboard/notifications');
+  };
+
   return (
     <>
       <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
@@ -42,6 +50,20 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Notification Bell */}
+            <button
+              onClick={handleNotificationClick}
+              className="relative p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              title="Notifications"
+            >
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}

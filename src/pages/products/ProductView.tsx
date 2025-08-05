@@ -4,11 +4,17 @@ import { ArrowLeft, Edit, Package } from "lucide-react";
 import { useProduct, useProductMutations } from "../../hooks/useProduct";
 import { helpers } from "../../utils/helper";
 import ConfirmationPopup from "../../components/common/ConfirmationPopup";
+import globalRequest from "../../services/globalRequest";
+import { useAppState } from "../../contexts/AppStateContext";
+import apiRoutes from "../../utils/apiRoutes";
+
 const ProductView: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [showDelistConfirm, setShowDelistConfirm] = useState(false);
+  const [showPermanentDeleteConfirm, setShowPermanentDeleteConfirm] = useState(false);
+  const { setMessage } = useAppState();
 
   // Hooks
   const { productDetail, getProductDetail } = useProduct();
@@ -24,7 +30,7 @@ const ProductView: React.FC = () => {
   // update product status
   const handleUpdateProductStatus = async (status: string) => {
     if (id) {
-      console.log("status", status);
+      // console.log("status", status);
       await updateProductStatus(id, status);
     }
   };
@@ -93,21 +99,59 @@ const ProductView: React.FC = () => {
     return <img src={mediaUrl} alt={alt} className={className} />;
   };
 
+  // Handle setting product status to DELETED
   const handleDelistProduct = () => {
     setShowDelistConfirm(true);
   };
 
-  const handleConfirmDelist = () => {
+  const handleConfirmDelist = async () => {
     if (id) {
-      deleteProduct(id, () => {
+      try {
+        await globalRequest(
+          apiRoutes.productUpdateStatus(id),
+          'put',
+          { listingStatus: 'DELETED' }
+        );
+        setMessage("Product status updated to DELETED successfully", "success");
         setShowDelistConfirm(false);
-        navigate("/dashboard/products");
-      });
+        // Refresh product details
+        getProductDetail(id);
+      } catch (error: any) {
+        const message = error?.response?.data?.message || "Failed to update product status";
+        setMessage(message, "error");
+      }
     }
   };
 
   const handleCancelDelist = () => {
     setShowDelistConfirm(false);
+  };
+
+  // Handle permanent deletion
+  const handlePermanentDelete = () => {
+    setShowPermanentDeleteConfirm(true);
+  };
+
+  const handleConfirmPermanentDelete = async () => {
+    if (id) {
+      try {
+        await globalRequest(
+          apiRoutes.productPermanentDelete(id),
+          'delete'
+        );
+        setMessage("Product permanently deleted successfully", "success");
+        setShowPermanentDeleteConfirm(false);
+        // Redirect to deleted products list
+        navigate("/dashboard/products/deleted");
+      } catch (error: any) {
+        const message = error?.response?.data?.message || "Failed to permanently delete product";
+        setMessage(message, "error");
+      }
+    }
+  };
+
+  const handleCancelPermanentDelete = () => {
+    setShowPermanentDeleteConfirm(false);
   };
 
   return (
@@ -344,8 +388,8 @@ const ProductView: React.FC = () => {
             ))}
           </select> */}
 
-          {/* create button for delete product with red color - only show if not deleted */}
-          {!(productDetail?.isDeleted) && (
+          {/* Show delete button if listingStatus is not DELETED */}
+          {productDetail?.listingStatus && productDetail.listingStatus !== 'DELETED' && (
             <button
               onClick={handleDelistProduct}
               className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-red-500 text-white hover:bg-red-600 transition-colors"
@@ -354,9 +398,19 @@ const ProductView: React.FC = () => {
             </button>
           )}
           
+          {/* Show permanent delete button if listingStatus is DELETED */}
+          {productDetail?.listingStatus && productDetail.listingStatus === 'DELETED' && (
+            <button
+              onClick={handlePermanentDelete}
+              className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-red-700 text-white hover:bg-red-800 transition-colors"
+            >
+              Permanently Delete This Product
+            </button>
+          )}
+          
           {/* Show deleted status if product is deleted */}
-          {(productDetail?.isDeleted) && (
-            <div className="w-full p-3 rounded-lg border border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-center">
+          {productDetail?.listingStatus && productDetail.listingStatus === 'DELETED' && (
+            <div className="w-full p-3 rounded-lg border border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20 text-center mb-4">
               <span className="text-red-800 dark:text-red-400 font-medium">
                 Product has been deleted
               </span>
@@ -369,9 +423,20 @@ const ProductView: React.FC = () => {
         isOpen={showDelistConfirm}
         onClose={handleCancelDelist}
         onConfirm={handleConfirmDelist}
-        title="Delist Product"
-        message="Are you sure you want to delist this product? This action cannot be undone."
-        confirmText="Delist"
+        title="Delete Product"
+        message="Are you sure you want to delete this product? This will change the listing status to DELETED."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      <ConfirmationPopup
+        isOpen={showPermanentDeleteConfirm}
+        onClose={handleCancelPermanentDelete}
+        onConfirm={handleConfirmPermanentDelete}
+        title="Permanently Delete Product"
+        message="Are you sure you want to permanently delete this product? This action cannot be undone and the product will be removed from the system permanently."
+        confirmText="Permanently Delete"
         cancelText="Cancel"
         type="danger"
       />
