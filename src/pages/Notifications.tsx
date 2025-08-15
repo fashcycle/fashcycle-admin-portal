@@ -49,32 +49,78 @@ const Notifications: React.FC = () => {
   });
   const navigate = useNavigate();
 
-  type TabType = 'all' | 'orders' | 'wishlist' | 'new_user' | 'product_approval' | 'add_to_cart';
+  type TabType = 'all' | 'users' | 'products' | 'wishlist' | 'cart' | 'orders' | 'reviews';
   const [activeTab, setActiveTab] = useState<TabType>('all');
 
-  const tabs: { id: TabType; label: string; icon: React.ReactNode; type?: string }[] = [
-    { id: 'all', label: 'All', icon: <Bell className="h-4 w-4" /> },
-    { id: 'orders', label: 'Orders', icon: <Package className="h-4 w-4" />, type: 'ORDER_CREATED' },
-    { id: 'wishlist', label: 'Wishlist', icon: <Heart className="h-4 w-4" />, type: 'WISHLIST_ADDITION' },
-    { id: 'new_user', label: 'New User', icon: <User className="h-4 w-4" />, type: 'USER_LOGIN' },
-    { id: 'product_approval', label: 'Product Approval', icon: <CheckCircle className="h-4 w-4" />, type: 'PRODUCT_APPROVAL' },
-    { id: 'add_to_cart', label: 'Add to Cart', icon: <ShoppingCart className="h-4 w-4" />, type: 'CART_ITEM_ADDED' }
+  const tabs: { id: TabType; label: string; icon: React.ReactNode; types?: string[] }[] = [
+    { 
+      id: 'all', 
+      label: 'All', 
+      icon: <Bell className="h-4 w-4" /> 
+    },
+    { 
+      id: 'users', 
+      label: 'Users', 
+      icon: <User className="h-4 w-4" />, 
+      types: ['USER_REGISTRATION'] 
+    },
+    { 
+      id: 'products', 
+      label: 'Products', 
+      icon: <Package className="h-4 w-4" />, 
+      types: [
+        'PRODUCT_LISTING',
+        'PRODUCT_AVAILABILITY_CONFIRMED',
+        'PRODUCT_AVAILABILITY_REJECTED',
+        'NO_RESPONSE_IN_FIRST_STAGE_ALERT'
+      ] 
+    },
+    { 
+      id: 'wishlist', 
+      label: 'Wishlist', 
+      icon: <Heart className="h-4 w-4" />, 
+      types: ['WISHLIST_ADDITION', 'WISHLIST_REMOVAL'] 
+    },
+    { 
+      id: 'cart', 
+      label: 'Cart', 
+      icon: <ShoppingCart className="h-4 w-4" />, 
+      types: ['CART_ITEM_ADDED'] 
+    },
+    { 
+      id: 'orders', 
+      label: 'Orders', 
+      icon: <Package className="h-4 w-4" />, 
+      types: ['NEW_ORDER_PLACED', 'ORDER_CANCELLED'] 
+    },
+    { 
+      id: 'reviews', 
+      label: 'Reviews', 
+      icon: <CheckCircle className="h-4 w-4" />, 
+      types: ['NEW_REVIEW'] 
+    }
   ];
 
-  const fetchNotifications = async (type?: string, page: number = 1, append: boolean = false) => {
+  const fetchNotifications = async (types?: string[], page: number = 1, append: boolean = false) => {
     try {
       setLoading(true);
       setGlobalLoading(true);
-      const queryParams: Record<string, string> = {
+      const queryParams: Record<string, string | string[]> = {
         limit: '20',
         page: page.toString()
       };
-      if (type) {
-        queryParams.type = type;
+      if (types && types.length > 0) {
+        queryParams.types = types;
       }
       
       const response = await globalRequest(
-        `/admin/notifications?${new URLSearchParams(queryParams).toString()}`,
+        `/admin/notifications?${new URLSearchParams(
+          Object.entries(queryParams).flatMap(([key, value]) => 
+            Array.isArray(value) 
+              ? value.map(v => [key, v]) 
+              : [[key, value]]
+          )
+        ).toString()}`,
         'get'
       );
       
@@ -217,7 +263,7 @@ const Notifications: React.FC = () => {
               onClick={() => {
                 setActiveTab(tab.id);
                 setPagination({ currentPage: 1, totalPages: 1, hasMore: false });
-                fetchNotifications(tab.type, 1, false);
+                fetchNotifications(tab.types, 1, false);
               }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
                 activeTab === tab.id
@@ -355,7 +401,7 @@ const Notifications: React.FC = () => {
       {!loading && pagination.hasMore && notifications.length > 0 && (
         <div className="mt-6 text-center">
           <button
-            onClick={() => fetchNotifications(tabs.find(t => t.id === activeTab)?.type, pagination.currentPage + 1, true)}
+            onClick={() => fetchNotifications(tabs.find(t => t.id === activeTab)?.types, pagination.currentPage + 1, true)}
             className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
             Load More
