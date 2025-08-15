@@ -73,6 +73,9 @@ function App() {
                 
                 {/* Redirect root to dashboard */}
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                
+                {/* Catch all route for 404 */}
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Routes>
             </div>
           </Router>
