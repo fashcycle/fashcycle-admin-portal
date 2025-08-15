@@ -26,7 +26,7 @@ const ProductList: React.FC = () => {
     { label: "Rejected", value: "rejected" },
     { label: "Query Raised", value: "query_raised" },
     { label: "Available", value: "available" },
-    { label: "Not Available", value: "not_available" },
+    // { label: "Not Available", value: "not_available" },
     { label: "Deleted", value: "deleted" },
   ];
 

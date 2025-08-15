@@ -71,58 +71,80 @@ const ProductEdit: React.FC = () => {
     }
   }, [id]);
 
-  useEffect(() => {
-    if (productDetailToUpdate) {
-      const convertToFileItem = (imageData: any): FileItem | null => {
-        if (!imageData) return null;
-        
-        return {
-          id: `existing-${Date.now()}`,
-          name: `${imageData.split('/').pop() || 'image'}`,
-          url: imageData,
-          type: 'image',
-          size: ""
-        };
-      };
-
-      setProduct({
-        id: productDetailToUpdate.id || '',
-        name: productDetailToUpdate?.name || '',
-        mobileNumber: productDetailToUpdate?.mobileNumber || '',
-        category: productDetailToUpdate?.category?.name || '',
-        originalPurchasePrice: productDetailToUpdate?.originalPurchasePrice || 0,
-        size: productDetailToUpdate?.size || '',
-        sizeFlexibility: productDetailToUpdate?.sizeFlexibility || '',
-        color: productDetailToUpdate?.color || '',
-        listingType: productDetailToUpdate?.listingType || ['rent'],
-        files: {
-          frontLook: convertToFileItem(productDetailToUpdate?.previewFiles?.frontLook),
-          backLook: convertToFileItem(productDetailToUpdate?.previewFiles?.backLook),
-          sideLook: convertToFileItem(productDetailToUpdate?.previewFiles?.sideLook),
-          closeUpLook: convertToFileItem(productDetailToUpdate?.previewFiles?.closeUpLook),
-          optional1: convertToFileItem(productDetailToUpdate?.previewFiles?.optional1),
-          optional2: convertToFileItem(productDetailToUpdate?.previewFiles?.optional2),
-          productVideo: productDetailToUpdate?.previewFiles?.productVideo ? {
-            id: `video-${Date.now()}`,
-            name: 'Product Video',
-            url: productDetailToUpdate?.previewFiles?.productVideo,
-            type: 'video',
-            size: 'Unknown'
-          } : null,
-          accessories: convertToFileItem(productDetailToUpdate?.previewFiles?.accessories),
-          proofOfPurchase: convertToFileItem(productDetailToUpdate?.previewFiles?.proofOfPurchase)
-        },
-        description: productDetailToUpdate.description || '',
-      });
-    }
-  }, [productDetailToUpdate]);
-
-
-  // const sizeFlexibilityOptions = ['flexible', 'fixed'];
   const { getProductColors, getProductSizes, getProductSizesFlexibility } = useProduct();
   const colors = getProductColors();
   const sizes = getProductSizes();
   const sizeFlexibility = getProductSizesFlexibility();
+
+  const convertToFileItem = (imageData: any): FileItem | null => {
+    if (!imageData) return null;
+    
+    return {
+      id: `existing-${Date.now()}`,
+      name: `${imageData.split('/').pop() || 'image'}`,
+      url: imageData,
+      type: 'image',
+      size: ""
+    };
+  };
+
+  // Initialize product data when it's first loaded
+  useEffect(() => {
+    if (!productDetailToUpdate) return;
+
+    const initialProduct = {
+      id: productDetailToUpdate.id || '',
+      name: productDetailToUpdate?.name || '',
+      mobileNumber: productDetailToUpdate?.mobileNumber || '',
+      category: productDetailToUpdate?.category?.name || '',
+      originalPurchasePrice: productDetailToUpdate?.originalPurchasePrice || 0,
+      size: productDetailToUpdate?.size || '',
+      sizeFlexibility: productDetailToUpdate?.sizeFlexibility || '',
+      color: productDetailToUpdate?.color || '',
+      listingType: productDetailToUpdate?.listingType || ['rent'],
+      files: {
+        frontLook: convertToFileItem(productDetailToUpdate?.previewFiles?.frontLook),
+        backLook: convertToFileItem(productDetailToUpdate?.previewFiles?.backLook),
+        sideLook: convertToFileItem(productDetailToUpdate?.previewFiles?.sideLook),
+        closeUpLook: convertToFileItem(productDetailToUpdate?.previewFiles?.closeUpLook),
+        optional1: convertToFileItem(productDetailToUpdate?.previewFiles?.optional1),
+        optional2: convertToFileItem(productDetailToUpdate?.previewFiles?.optional2),
+                  productVideo: productDetailToUpdate?.previewFiles?.productVideo ? {
+            id: `video-${Date.now()}`,
+            name: 'Product Video',
+            url: productDetailToUpdate?.previewFiles?.productVideo,
+            type: 'video' as const,
+            size: 'Unknown'
+          } : null,
+        accessories: convertToFileItem(productDetailToUpdate?.previewFiles?.accessories),
+        proofOfPurchase: convertToFileItem(productDetailToUpdate?.previewFiles?.proofOfPurchase)
+      },
+      description: productDetailToUpdate.description || '',
+    };
+
+    setProduct(initialProduct);
+  }, [productDetailToUpdate]);
+
+  // Handle color matching separately after colors are loaded
+  useEffect(() => {
+    if (!productDetailToUpdate?.color || !colors.length || !product.id) return;
+
+    const apiColor = productDetailToUpdate.color.trim();
+    const matchedColor = colors.find(c => c.name.toLowerCase() === apiColor.toLowerCase());
+
+    if (matchedColor && matchedColor.name !== product.color) {
+      // console.log('Debug color matching:', {
+      //   'API color': apiColor,
+      //   'Matched color': matchedColor.name,
+      //   'Current color': product.color
+      // });
+
+      setProduct(prev => ({
+        ...prev,
+        color: matchedColor.name
+      }));
+    }
+  }, [colors, productDetailToUpdate?.color, product.id, product.color]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -270,18 +292,80 @@ const ProductEdit: React.FC = () => {
     }));
   };
 
-  const downloadFile = (file: FileItem) => {
-    const link = document.createElement('a');
-    link.href = file.url;
-    link.setAttribute('download', file.name || 'download');
-  
-    // This part helps for images to force download
-    link.setAttribute('target', '_blank');
-    link.setAttribute('rel', 'noopener');
-  
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const getFileExtension = (url: string, type: string): string => {
+    // Try to get extension from URL first
+    const urlExtension = url.split('.').pop()?.toLowerCase();
+    if (urlExtension && ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'pdf'].includes(urlExtension)) {
+      return urlExtension;
+    }
+
+    // Fallback to type-based extension
+    switch (type) {
+      case 'image':
+        return 'jpg';
+      case 'video':
+        return 'mp4';
+      case 'document':
+        return 'pdf';
+      default:
+        return 'jpg';
+    }
+  };
+
+  const downloadFile = async (file: FileItem) => {
+    try {
+      const extension = getFileExtension(file.url, file.type);
+      const fileName = `${file.name || 'download'}.${extension}`;
+
+      // For blob URLs (local files)
+      if (file.url.startsWith('blob:')) {
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        return;
+      }
+
+      // For S3 URLs, open in new tab with Content-Disposition header
+      if (file.url.includes('s3.amazonaws.com')) {
+        // Create a temporary link and click it
+        const link = document.createElement('a');
+        link.href = file.url;
+        link.setAttribute('download', fileName); // This might not work due to CORS
+        link.setAttribute('target', '_blank'); // Fallback to opening in new tab
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      } else {
+        // For other remote URLs
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(
+          new Blob([blob], { type: `${file.type}/${extension}` })
+        );
+        
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      }
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Failed to download file. Please try again.');
+    }
   };
 
   const viewFile = (file: FileItem) => {

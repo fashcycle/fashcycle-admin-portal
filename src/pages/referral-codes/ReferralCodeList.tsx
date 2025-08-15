@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Eye, Package, ShoppingCart, Users, DollarSign, ChevronDown } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, Eye, Package, ShoppingCart, Users, DollarSign, ChevronDown, IndianRupee } from 'lucide-react';
 import { useReferralCodes } from '../../hooks/useReferralCodes';
 import { helpers } from '../../utils/helper';
 import Pagination from '../../components/common/Pagination';
@@ -62,7 +62,7 @@ const ReferralCodeList: React.FC = () => {
       change: '+18%',
       changeText:'Referrals to registrations',
       changeType: 'increase',
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'yellow'
     }
   ];
