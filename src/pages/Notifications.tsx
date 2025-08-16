@@ -110,7 +110,7 @@ const Notifications: React.FC = () => {
         page: page.toString()
       };
       if (types && types.length > 0) {
-        queryParams.types = types;
+        queryParams.type = types;
       }
       
       const response = await globalRequest(
