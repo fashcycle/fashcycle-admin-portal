@@ -78,6 +78,11 @@ const apiRoutes = {
   //notifications
   notifications: '/admin/notifications',
 
+  //payouts
+  payoutList: '/admin/earnings',
+  payoutDetail: (id: string) => `/admin/earning/${id}`,
+  payoutUpdate: (id: string) => `/admin/earnings/${id}`,
+  settlePayout: '/admin/payout/earning',
 };
 
 export default apiRoutes;

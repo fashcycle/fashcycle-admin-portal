@@ -9,6 +9,12 @@ interface Category {
   status: 'active' | 'inactive' | 'deleted';
   slug: string;
   image?: string;
+  rentPercent3Days?: number;
+  rentPercent7Days?: number;
+  rentPercent14Days?: number;
+  securityPercent?: number;
+  conveniencePercent?: number;
+  sellingPercent?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,12 +38,24 @@ interface CreateCategoryData {
   slug: string;
   status: 'active' | 'inactive';
   image?: File;
+  rentPercent3Days: number;
+  rentPercent7Days: number;
+  rentPercent14Days: number;
+  securityPercent: number;
+  conveniencePercent: number;
+  sellingPercent: number;
 }
 
 interface UpdateCategoryData {
   name?: string;
   status?: 'active' | 'inactive' | 'deleted';
   image?: File;
+  rentPercent3Days?: number;
+  rentPercent7Days?: number;
+  rentPercent14Days?: number;
+  securityPercent?: number;
+  conveniencePercent?: number;
+  sellingPercent?: number;
 }
 
 export const useCategory = () => {

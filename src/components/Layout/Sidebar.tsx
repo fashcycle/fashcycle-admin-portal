@@ -14,7 +14,8 @@ import {
   Gift,
   MapPin,
   Image,
-  Settings
+  Settings,
+  DollarSign
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -78,6 +79,11 @@ const Sidebar: React.FC = () => {
       name: 'Notifications',
       icon: Bell,
       href: '/dashboard/notifications'
+    },
+    {
+      name: 'Payouts',
+      icon: DollarSign,
+      href: '/dashboard/payouts'
     },
     {
       name: 'Platform Settings',
