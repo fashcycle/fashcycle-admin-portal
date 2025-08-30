@@ -30,6 +30,8 @@ import UserDetail from './pages/users/UserDetail';
 import Users from './pages/users/Users';
 import ReferralCodeList from './pages/referral-codes/ReferralCodeList';
 import PlatformSettings from './pages/platform-settings/PlatformSettings';
+import PayoutList from './pages/payouts/PayoutList';
+import PayoutDetail from './pages/payouts/PayoutDetail';
 
 function App() {
   return (
@@ -69,6 +71,8 @@ function App() {
                   <Route path="referral-codes" element={<ReferralCodeList />} />
                   <Route path="platform-settings" element={<PlatformSettings />} />
                   <Route path="notifications" element={<Notifications />} />
+                  <Route path="payouts" element={<PayoutList />} />
+                  <Route path="payouts/:id" element={<PayoutDetail />} />
                 </Route>
                 
                 {/* Redirect root to dashboard */}
