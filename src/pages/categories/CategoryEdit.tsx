@@ -54,12 +54,12 @@ const CategoryEdit: React.FC = () => {
         slug: categoryDetail.slug || '',
         status: categoryDetail.status === 'deleted' ? 'inactive' : categoryDetail.status || 'active',
         image: null,
-        rentPercent3Days: categoryDetail.rentPercent3Days?.toString() || '',
-        rentPercent7Days: categoryDetail.rentPercent7Days?.toString() || '',
-        rentPercent14Days: categoryDetail.rentPercent14Days?.toString() || '',
-        securityPercent: categoryDetail.securityPercent?.toString() || '',
-        conveniencePercent: categoryDetail.conveniencePercent?.toString() || '',
-        sellingPercent: categoryDetail.sellingPercent?.toString() || '',
+        rentPercent3Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent3Days?.toString() || '',
+        rentPercent7Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent7Days?.toString() || '',
+        rentPercent14Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent14Days?.toString() || '',
+        securityPercent: categoryDetail.CategoryFeeSetting?.[0]?.securityPercent?.toString() || '',
+        conveniencePercent: categoryDetail.CategoryFeeSetting?.[0]?.conveniencePercent?.toString() || '',
+        sellingPercent: categoryDetail.CategoryFeeSetting?.[0]?.sellingPercent?.toString() || '',
       });
       // Set image preview if category has an image
       if (categoryDetail.image) {

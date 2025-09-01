@@ -3,20 +3,33 @@ import globalRequest from '../services/globalRequest';
 import { useAppState } from '../contexts/AppStateContext';
 import apiRoutes from '../utils/apiRoutes';
 
+// Type definitions
+interface CategoryFeeSetting {
+  id: string;
+  categoryId: string;
+  rentPercent3Days: number;
+  rentPercent7Days: number;
+  rentPercent14Days: number;
+  securityPercent: number;
+  conveniencePercent: number;
+  sellingPercent: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  rentPercent1Day?: number;
+}
+
 interface Category {
   id: string;
   name: string;
   status: 'active' | 'inactive' | 'deleted';
   slug: string;
   image?: string;
-  rentPercent3Days?: number;
-  rentPercent7Days?: number;
-  rentPercent14Days?: number;
-  securityPercent?: number;
-  conveniencePercent?: number;
-  sellingPercent?: number;
   createdAt: string;
   updatedAt: string;
+  isEvent?: boolean;
+  minOriginalPurchasePrice?: number;
+  CategoryFeeSetting?: CategoryFeeSetting[];
 }
 
 interface CategoryListResponse {
@@ -194,4 +207,6 @@ export const useCategory = () => {
     updateCategoryStatus,
     deleteCategory,
   };
-}; 
+};
+
+export type { Category, CategoryFeeSetting };

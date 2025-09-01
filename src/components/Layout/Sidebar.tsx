@@ -99,13 +99,18 @@ const Sidebar: React.FC = () => {
   };
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-screen">
       <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
-          <Store className="h-8 w-8 text-blue-600" />
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
-            {/* Fashcycle Admin */}
-          </span>
+        {/* <Store className="h-8 w-8 text-blue-600" /> */}
+          {/* <span className="text-xl font-bold text-gray-900 dark:text-white">
+            Fashcycle Admin
+          </span> */}
+          <img 
+            src="https://www.fashcycle.com/_next/static/media/HomeLogo.90173f35.png"
+            alt="Fashcycle Logo"
+            className="h-8 object-contain"
+          />
         </div>
         <button
           onClick={() => setIsMobileMenuOpen(false)}
@@ -115,7 +120,7 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navigation.map((item) => (
           <div key={item.name}>
             {item.children ? (
