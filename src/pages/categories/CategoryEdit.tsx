@@ -13,6 +13,12 @@ const CategoryEdit: React.FC = () => {
     slug: '',
     status: 'active' as 'active' | 'inactive',
     image: null as File | null,
+    rentPercent3Days: '',
+    rentPercent7Days: '',
+    rentPercent14Days: '',
+    securityPercent: '',
+    conveniencePercent: '',
+    sellingPercent: '',
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -48,6 +54,12 @@ const CategoryEdit: React.FC = () => {
         slug: categoryDetail.slug || '',
         status: categoryDetail.status === 'deleted' ? 'inactive' : categoryDetail.status || 'active',
         image: null,
+        rentPercent3Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent3Days?.toString() || '',
+        rentPercent7Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent7Days?.toString() || '',
+        rentPercent14Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent14Days?.toString() || '',
+        securityPercent: categoryDetail.CategoryFeeSetting?.[0]?.securityPercent?.toString() || '',
+        conveniencePercent: categoryDetail.CategoryFeeSetting?.[0]?.conveniencePercent?.toString() || '',
+        sellingPercent: categoryDetail.CategoryFeeSetting?.[0]?.sellingPercent?.toString() || '',
       });
       // Set image preview if category has an image
       if (categoryDetail.image) {
@@ -149,16 +161,52 @@ const CategoryEdit: React.FC = () => {
     setImagePreview(null);
   };
 
+  const validatePercentageFields = () => {
+    // Check if all percentage fields are numbers
+    const percentageFields = {
+      rentPercent3Days: category.rentPercent3Days,
+      rentPercent7Days: category.rentPercent7Days,
+      rentPercent14Days: category.rentPercent14Days,
+      securityPercent: category.securityPercent,
+      conveniencePercent: category.conveniencePercent,
+      sellingPercent: category.sellingPercent,
+    };
+
+    for (const [field, value] of Object.entries(percentageFields)) {
+      if (value === '') {
+        setError(`${field} is required`);
+        return false;
+      }
+      const numValue = Number(value);
+      if (isNaN(numValue) || numValue < 0 || numValue > 100) {
+        setError(`${field} must be a number between 0 and 100`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!validatePercentageFields()) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const formData = new FormData();
       formData.append('name', category.name);
       formData.append('slug', category.slug);
       formData.append('status', category.status);
+      formData.append('rentPercent3Days', category.rentPercent3Days);
+      formData.append('rentPercent7Days', category.rentPercent7Days);
+      formData.append('rentPercent14Days', category.rentPercent14Days);
+      formData.append('securityPercent', category.securityPercent);
+      formData.append('conveniencePercent', category.conveniencePercent);
+      formData.append('sellingPercent', category.sellingPercent);
       
       if (category.image) {
         formData.append('image', category.image);
@@ -341,6 +389,135 @@ const CategoryEdit: React.FC = () => {
                     onChange={handleImageChange}
                   />
                 </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Percentage Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Rent Percentage for 3 Days */}
+            <div>
+              <label htmlFor="rentPercent3Days" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Rent Percentage (3 Days) *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="rentPercent3Days"
+                  value={category.rentPercent3Days}
+                  onChange={(e) => handleInputChange('rentPercent3Days', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+              </div>
+            </div>
+
+            {/* Rent Percentage for 7 Days */}
+            <div>
+              <label htmlFor="rentPercent7Days" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Rent Percentage (7 Days) *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="rentPercent7Days"
+                  value={category.rentPercent7Days}
+                  onChange={(e) => handleInputChange('rentPercent7Days', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+              </div>
+            </div>
+
+            {/* Rent Percentage for 14 Days */}
+            <div>
+              <label htmlFor="rentPercent14Days" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Rent Percentage (14 Days) *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="rentPercent14Days"
+                  value={category.rentPercent14Days}
+                  onChange={(e) => handleInputChange('rentPercent14Days', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+              </div>
+            </div>
+
+            {/* Security Percentage */}
+            <div>
+              <label htmlFor="securityPercent" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Security Percentage *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="securityPercent"
+                  value={category.securityPercent}
+                  onChange={(e) => handleInputChange('securityPercent', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+              </div>
+            </div>
+
+            {/* Convenience Percentage */}
+            <div>
+              <label htmlFor="conveniencePercent" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Convenience Percentage *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="conveniencePercent"
+                  value={category.conveniencePercent}
+                  onChange={(e) => handleInputChange('conveniencePercent', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+              </div>
+            </div>
+
+            {/* Selling Percentage */}
+            <div>
+              <label htmlFor="sellingPercent" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Selling Percentage *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="sellingPercent"
+                  value={category.sellingPercent}
+                  onChange={(e) => handleInputChange('sellingPercent', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
               </div>
             </div>
           </div>

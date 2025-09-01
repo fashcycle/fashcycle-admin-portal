@@ -3,6 +3,22 @@ import globalRequest from '../services/globalRequest';
 import { useAppState } from '../contexts/AppStateContext';
 import apiRoutes from '../utils/apiRoutes';
 
+// Type definitions
+interface CategoryFeeSetting {
+  id: string;
+  categoryId: string;
+  rentPercent3Days: number;
+  rentPercent7Days: number;
+  rentPercent14Days: number;
+  securityPercent: number;
+  conveniencePercent: number;
+  sellingPercent: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  rentPercent1Day?: number;
+}
+
 interface Category {
   id: string;
   name: string;
@@ -11,6 +27,9 @@ interface Category {
   image?: string;
   createdAt: string;
   updatedAt: string;
+  isEvent?: boolean;
+  minOriginalPurchasePrice?: number;
+  CategoryFeeSetting?: CategoryFeeSetting[];
 }
 
 interface CategoryListResponse {
@@ -32,12 +51,24 @@ interface CreateCategoryData {
   slug: string;
   status: 'active' | 'inactive';
   image?: File;
+  rentPercent3Days: number;
+  rentPercent7Days: number;
+  rentPercent14Days: number;
+  securityPercent: number;
+  conveniencePercent: number;
+  sellingPercent: number;
 }
 
 interface UpdateCategoryData {
   name?: string;
   status?: 'active' | 'inactive' | 'deleted';
   image?: File;
+  rentPercent3Days?: number;
+  rentPercent7Days?: number;
+  rentPercent14Days?: number;
+  securityPercent?: number;
+  conveniencePercent?: number;
+  sellingPercent?: number;
 }
 
 export const useCategory = () => {
@@ -176,4 +207,6 @@ export const useCategory = () => {
     updateCategoryStatus,
     deleteCategory,
   };
-}; 
+};
+
+export type { Category, CategoryFeeSetting };
