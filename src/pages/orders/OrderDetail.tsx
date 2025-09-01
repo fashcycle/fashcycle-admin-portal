@@ -583,7 +583,7 @@ const OrderDetail: React.FC = () => {
             <div className="flex items-center space-x-2 mb-4">
               <CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Rental Amount Status
+              You Earn
               </h3>
             </div>
             <div className="space-y-4">
