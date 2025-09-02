@@ -520,11 +520,11 @@ const ProductList: React.FC = () => {
                     {product.owner.name}
                   </td>
                   <td className="px-6 py-4 text-gray-900 dark:text-white">
-                    {helpers.formatDateFunction(
+                    {product.approvedAt ? helpers.formatDateFunction(
                       product.approvedAt,
                       "dd/mm/yyyy",
                       true
-                    )}
+                    ) : "-"}
                   </td>
                   {/* create 3 icons for 3 stage alert  1st will be notification icon with red color, 2nd will be alert icon with red color and last wil be call button  */}
                   <td className="px-6 py-4">
