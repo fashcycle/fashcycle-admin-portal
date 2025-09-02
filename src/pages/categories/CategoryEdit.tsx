@@ -13,12 +13,15 @@ const CategoryEdit: React.FC = () => {
     slug: '',
     status: 'active' as 'active' | 'inactive',
     image: null as File | null,
+    rentPercent1Day: '',
     rentPercent3Days: '',
     rentPercent7Days: '',
     rentPercent14Days: '',
     securityPercent: '',
     conveniencePercent: '',
     sellingPercent: '',
+    minOriginalPurchasePrice: '',
+    isEvent: false,
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -54,12 +57,15 @@ const CategoryEdit: React.FC = () => {
         slug: categoryDetail.slug || '',
         status: categoryDetail.status === 'deleted' ? 'inactive' : categoryDetail.status || 'active',
         image: null,
+        rentPercent1Day: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent1Day?.toString() || '',
         rentPercent3Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent3Days?.toString() || '',
         rentPercent7Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent7Days?.toString() || '',
         rentPercent14Days: categoryDetail.CategoryFeeSetting?.[0]?.rentPercent14Days?.toString() || '',
         securityPercent: categoryDetail.CategoryFeeSetting?.[0]?.securityPercent?.toString() || '',
         conveniencePercent: categoryDetail.CategoryFeeSetting?.[0]?.conveniencePercent?.toString() || '',
         sellingPercent: categoryDetail.CategoryFeeSetting?.[0]?.sellingPercent?.toString() || '',
+        minOriginalPurchasePrice: categoryDetail.minOriginalPurchasePrice?.toString() || '',
+        isEvent: categoryDetail.isEvent || false,
       });
       // Set image preview if category has an image
       if (categoryDetail.image) {
@@ -164,6 +170,7 @@ const CategoryEdit: React.FC = () => {
   const validatePercentageFields = () => {
     // Check if all percentage fields are numbers
     const percentageFields = {
+      rentPercent1Day: category.rentPercent1Day,
       rentPercent3Days: category.rentPercent3Days,
       rentPercent7Days: category.rentPercent7Days,
       rentPercent14Days: category.rentPercent14Days,
@@ -191,6 +198,19 @@ const CategoryEdit: React.FC = () => {
     setLoading(true);
     setError('');
 
+    // Validate minimum original purchase price
+    if (category.minOriginalPurchasePrice === '') {
+      setError('Minimum Original Purchase Price is required');
+      setLoading(false);
+      return;
+    }
+    const minPrice = Number(category.minOriginalPurchasePrice);
+    if (isNaN(minPrice) || minPrice < 0) {
+      setError('Minimum Original Purchase Price must be a positive number');
+      setLoading(false);
+      return;
+    }
+
     if (!validatePercentageFields()) {
       setLoading(false);
       return;
@@ -201,12 +221,15 @@ const CategoryEdit: React.FC = () => {
       formData.append('name', category.name);
       formData.append('slug', category.slug);
       formData.append('status', category.status);
+      formData.append('rentPercent1Day', category.rentPercent1Day);
       formData.append('rentPercent3Days', category.rentPercent3Days);
       formData.append('rentPercent7Days', category.rentPercent7Days);
       formData.append('rentPercent14Days', category.rentPercent14Days);
       formData.append('securityPercent', category.securityPercent);
       formData.append('conveniencePercent', category.conveniencePercent);
       formData.append('sellingPercent', category.sellingPercent);
+      formData.append('minOriginalPurchasePrice', category.minOriginalPurchasePrice);
+      formData.append('isEvent', category.isEvent.toString());
       
       if (category.image) {
         formData.append('image', category.image);
@@ -393,8 +416,68 @@ const CategoryEdit: React.FC = () => {
             </div>
           </div>
 
+          {/* Event and Price Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Is Event */}
+            <div>
+              <label htmlFor="isEvent" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Is Event Category
+              </label>
+              <div className="relative">
+                <select
+                  id="isEvent"
+                  value={category.isEvent.toString()}
+                  onChange={(e) => handleInputChange('isEvent', e.target.value === 'true')}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="false">No</option>
+                  <option value="true">Yes</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Minimum Original Purchase Price */}
+            <div>
+              <label htmlFor="minOriginalPurchasePrice" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Minimum Original Purchase Price *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="minOriginalPurchasePrice"
+                  value={category.minOriginalPurchasePrice}
+                  onChange={(e) => handleInputChange('minOriginalPurchasePrice', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter minimum price"
+                  min="0"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Percentage Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Rent Percentage for 1 Day */}
+            <div>
+              <label htmlFor="rentPercent1Day" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Rent Percentage (1 Day) *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  id="rentPercent1Day"
+                  value={category.rentPercent1Day}
+                  onChange={(e) => handleInputChange('rentPercent1Day', e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white pr-12"
+                  placeholder="Enter percentage"
+                  min="0"
+                  max="100"
+                  required
+                />
+                <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
+              </div>
+            </div>
             {/* Rent Percentage for 3 Days */}
             <div>
               <label htmlFor="rentPercent3Days" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

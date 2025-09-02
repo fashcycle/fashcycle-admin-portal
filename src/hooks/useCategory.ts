@@ -7,6 +7,7 @@ import apiRoutes from '../utils/apiRoutes';
 interface CategoryFeeSetting {
   id: string;
   categoryId: string;
+  rentPercent1Day: number;
   rentPercent3Days: number;
   rentPercent7Days: number;
   rentPercent14Days: number;
@@ -16,7 +17,6 @@ interface CategoryFeeSetting {
   status: string;
   createdAt: string;
   updatedAt: string;
-  rentPercent1Day?: number;
 }
 
 interface Category {
@@ -51,24 +51,30 @@ interface CreateCategoryData {
   slug: string;
   status: 'active' | 'inactive';
   image?: File;
+  rentPercent1Day: number;
   rentPercent3Days: number;
   rentPercent7Days: number;
   rentPercent14Days: number;
   securityPercent: number;
   conveniencePercent: number;
   sellingPercent: number;
+  minOriginalPurchasePrice: number;
+  isEvent: boolean;
 }
 
 interface UpdateCategoryData {
   name?: string;
   status?: 'active' | 'inactive' | 'deleted';
   image?: File;
+  rentPercent1Day?: number;
   rentPercent3Days?: number;
   rentPercent7Days?: number;
   rentPercent14Days?: number;
   securityPercent?: number;
   conveniencePercent?: number;
   sellingPercent?: number;
+  minOriginalPurchasePrice?: number;
+  isEvent?: boolean;
 }
 
 export const useCategory = () => {
