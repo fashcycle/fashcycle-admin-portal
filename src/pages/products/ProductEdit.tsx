@@ -52,6 +52,7 @@ const ProductEdit: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
+  const [removedFiles, setRemovedFiles] = useState<string[]>([]);
 
   // Fetch product details on component mount
   useEffect(() => {
@@ -164,6 +165,9 @@ const ProductEdit: React.FC = () => {
       formData.append('listingType', product.listingType.join(','));
       formData.append('size', product.size);
       formData.append('description', product.description);
+      if (removedFiles.length > 0) {
+        formData.append('removedFiles', JSON.stringify(removedFiles));
+      }
 
       // Add files if they exist
       if (product.files.frontLook?.url && product.files.frontLook.url.startsWith('blob:')) {
@@ -264,6 +268,12 @@ const ProductEdit: React.FC = () => {
   const handleFileUpload = (section: string, files: FileList | null) => {
     if (!files || files.length === 0) return;
 
+    // If replacing an existing server file (non-blob), mark it for removal
+    const existing = product.files[section as keyof typeof product.files] as FileItem | null;
+    if (existing && !existing.url.startsWith('blob:')) {
+      setRemovedFiles(prev => (prev.includes(section) ? prev : [...prev, section]));
+    }
+
     const file = files[0]; // Take only the first file
     const newFile: FileItem = {
       id: `${section}-${Date.now()}`,
@@ -283,6 +293,11 @@ const ProductEdit: React.FC = () => {
   };
 
   const removeFile = (section: string) => {
+    const existing = product.files[section as keyof typeof product.files] as FileItem | null;
+    if (existing && !existing.url.startsWith('blob:')) {
+      setRemovedFiles(prev => (prev.includes(section) ? prev : [...prev, section]));
+    }
+
     setProduct(prev => ({
       ...prev,
       files: {
