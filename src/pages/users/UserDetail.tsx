@@ -8,19 +8,19 @@ import {
   MapPin,
   Calendar,
   Edit,
-  MessageSquare,
-  UserX,
   MoreHorizontal,
   Plus,
   Trash2,
   Search,
   Eye,
+  Ruler,
 } from "lucide-react";
 import { useUser } from "../../hooks/useUser";
 import { helpers } from "../../utils/helper";
 import EditUserPopup from "../../components/common/EditUserPopup";
 import ConfirmationPopup from "../../components/common/ConfirmationPopup";
 import AddressPopup from "../../components/common/AddressPopup";
+import FittingPopup from "../../components/common/FittingPopup";
 import Pagination from "../../components/common/Pagination";
 
 const UserDetail: React.FC = () => {
@@ -42,6 +42,13 @@ const UserDetail: React.FC = () => {
   const [showDeleteAddressConfirm, setShowDeleteAddressConfirm] = useState(false);
   const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
 
+  // Fitting management states
+  const [showFittingPopup, setShowFittingPopup] = useState(false);
+  const [editingFitting, setEditingFitting] = useState<any>(null);
+  const [fittingLoading, setFittingLoading] = useState(false);
+  const [showDeleteFittingConfirm, setShowDeleteFittingConfirm] = useState(false);
+  const [deletingFittingId, setDeletingFittingId] = useState<string | null>(null);
+
   // Product management states
   const [productSearch, setProductSearch] = useState('');
   const [productStatusFilter, setProductStatusFilter] = useState('');
@@ -62,6 +69,11 @@ const UserDetail: React.FC = () => {
     addUserAddress, 
     updateUserAddress, 
     deleteUserAddress,
+    addUserFitting,
+    updateUserFitting,
+    deleteUserFitting,
+    getUserFittings,
+    userFittings,
     userProducts,
     totalProducts,
     currentProductPage,
@@ -111,6 +123,13 @@ const UserDetail: React.FC = () => {
     }
   }, [id, activeTab, orderPage, orderSearch, orderStatusFilter]);
 
+  // Load fittings when component mounts
+  useEffect(() => {
+    if (id) {
+      loadUserFittings();
+    }
+  }, [id]);
+
   const loadUserProducts = async (page=productPage) => {
     if (!id) return;
     
@@ -138,6 +157,16 @@ const UserDetail: React.FC = () => {
       });
     } catch (error) {
       console.error('Error loading user orders:', error);
+    }
+  };
+
+  const loadUserFittings = async () => {
+    if (!id) return;
+    
+    try {
+      await getUserFittings(id);
+    } catch (error) {
+      console.error('Error loading user fittings:', error);
     }
   };
 
@@ -332,6 +361,65 @@ const UserDetail: React.FC = () => {
     setDeletingAddressId(null);
   };
 
+  // Fitting management functions
+  const handleAddFitting = () => {
+    setEditingFitting(null);
+    setShowFittingPopup(true);
+  };
+
+  const handleEditFitting = (fitting: any) => {
+    setEditingFitting(fitting);
+    setShowFittingPopup(true);
+  };
+
+  const handleDeleteFitting = (fittingId: string) => {
+    setDeletingFittingId(fittingId);
+    setShowDeleteFittingConfirm(true);
+  };
+
+  const handleSaveFitting = async (fittingData: any) => {
+    if (!id) return;
+    
+    setFittingLoading(true);
+    try {
+      if (editingFitting) {
+        await updateUserFitting(editingFitting.id, fittingData);
+      } else {
+        await addUserFitting(id, fittingData);
+      }
+      setShowFittingPopup(false);
+      setEditSuccess(true);
+      setTimeout(() => setEditSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error saving fitting:', error);
+      throw error;
+    } finally {
+      setFittingLoading(false);
+    }
+  };
+
+  const handleConfirmDeleteFitting = async () => {
+    if (!deletingFittingId) return;
+    
+    setFittingLoading(true);
+    try {
+      await deleteUserFitting(deletingFittingId);
+      setShowDeleteFittingConfirm(false);
+      setDeletingFittingId(null);
+      setEditSuccess(true);
+      setTimeout(() => setEditSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error deleting fitting:', error);
+    } finally {
+      setFittingLoading(false);
+    }
+  };
+
+  const handleCloseDeleteFittingConfirm = () => {
+    setShowDeleteFittingConfirm(false);
+    setDeletingFittingId(null);
+  };
+
   if (dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -513,6 +601,14 @@ const UserDetail: React.FC = () => {
                   {userDetail.addresses?.length || 0}
                 </span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  Fitting Details
+                </span>
+                <span className="font-bold text-orange-600 dark:text-orange-400">
+                  {userFittings && userFittings.length > 0 ? 'Added' : 'Not Added'}
+                </span>
+              </div>
             </div>
 
             <div className="mt-6 space-y-3">
@@ -609,6 +705,102 @@ const UserDetail: React.FC = () => {
             >
               <Plus className="h-4 w-4 mr-2" />
               Add First Address
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Fitting Information */}
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <Ruler className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Fitting Information
+            </h3>
+          </div>
+          {userFittings && userFittings.length > 0 ? (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handleEditFitting(userFittings[0])}
+                className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                <Edit className="h-4 w-4 mr-1" />
+                Edit Fitting
+              </button>
+              <button
+                onClick={() => handleDeleteFitting(userFittings[0].id)}
+                className="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleAddFitting}
+              className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white text-sm rounded-lg hover:bg-orange-700 transition-colors"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Fitting
+            </button>
+          )}
+        </div>
+        
+        {userFittings && userFittings.length > 0 ? (
+          <div className="space-y-4">
+            {userFittings[0] && (
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      Fitting Details
+                    </span>
+                    <span className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded">
+                      {Object.keys(userFittings[0].fittingData).length} garments
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Last updated {helpers?.formatDateFunction(userFittings[0].updatedAt, "dd/mm/yyyy", true)}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(userFittings[0].fittingData).map(([garmentType, measurements]) => (
+                    <div key={garmentType} className="border border-orange-200 dark:border-orange-800 rounded-lg p-3 bg-orange-50 dark:bg-orange-900/10">
+                      <div className="text-sm font-semibold text-gray-900 dark:text-white capitalize mb-3 flex items-center">
+                        <Ruler className="h-4 w-4 mr-2 text-orange-600" />
+                        {garmentType}
+                      </div>
+                      <div className="space-y-2">
+                        {Object.entries(measurements).map(([measurement, value]) => (
+                          <div key={measurement} className="flex justify-between items-center text-sm">
+                            <span className="text-gray-600 dark:text-gray-400 capitalize font-medium">
+                              {measurement}:
+                            </span>
+                            <span className="text-gray-900 dark:text-white font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded text-xs">
+                              {value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Ruler className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Fitting Details</h4>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">Add fitting details to help with size recommendations</p>
+            <button
+              onClick={handleAddFitting}
+              className="inline-flex items-center px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Add Fitting Details
             </button>
           </div>
         )}
@@ -987,6 +1179,26 @@ const UserDetail: React.FC = () => {
         onSave={handleSaveAddress}
         address={editingAddress}
         loading={addressLoading}
+      />
+
+      {/* Delete Fitting Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showDeleteFittingConfirm}
+        onClose={handleCloseDeleteFittingConfirm}
+        onConfirm={handleConfirmDeleteFitting}
+        title="Delete Fitting"
+        message="Are you sure you want to delete this fitting? This action cannot be undone."
+        confirmText="Delete"
+        type="danger"
+      />
+
+      {/* Fitting Popup */}
+      <FittingPopup
+        isOpen={showFittingPopup}
+        onClose={() => setShowFittingPopup(false)}
+        onSave={handleSaveFitting}
+        fitting={editingFitting?.fittingData}
+        loading={fittingLoading}
       />
     </div>
   );

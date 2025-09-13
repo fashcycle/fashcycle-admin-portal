@@ -118,7 +118,7 @@ export const useProduct = () => {
   };
 
   const getProductSizes = () => {
-    return ['S', 'M', 'L', 'XL', 'XXL'];
+    return ['S', 'M', 'L', 'XL', 'XXL','FREE_SIZE'];
   };
 
   const getProductSizesFlexibility = () => {

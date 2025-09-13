@@ -28,6 +28,7 @@ interface User {
   createdAt: string;
   status: string;
   addresses: Address[];
+  fittings?: Fitting[];
   products: any[];
   orders: any[];
   totalProducts?: number;
@@ -81,6 +82,37 @@ interface AddressData {
   pincode: string;
   city: string;
   state: string;
+}
+
+interface FittingData {
+  [key: string]: {
+    [key: string]: string;
+  };
+}
+
+interface Fitting {
+  id: string;
+  userId: string;
+  fittingData: FittingData;
+  recordStatus: string;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    name: string;
+  };
+}
+
+interface FittingListResponse {
+  success: boolean;
+  message: string;
+  userName: string;
+  fittings: Fitting[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
 
 interface ProductImage {
@@ -224,6 +256,10 @@ export const useUser = () => {
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [totalOrders, setTotalOrders] = useState(0);
   const [currentOrderPage, setCurrentOrderPage] = useState(1);
+  
+  // User fittings state
+  const [userFittings, setUserFittings] = useState<Fitting[]>([]);
+  const [totalFittings, setTotalFittings] = useState(0);
   
   const { setLoading } = useAppState();
 
@@ -411,6 +447,80 @@ export const useUser = () => {
     }
   };
 
+  // Fitting management functions
+  const addUserFitting = async (userId: string, fittingData: FittingData) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.userFittingAdd(userId),
+        'post',
+        {
+          userId,
+          fittingData
+        }
+      );
+      
+      // Refresh fittings after adding
+      if (response.success) {
+        await getUserFittings(userId);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Failed to add fitting:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserFitting = async (fittingId: string, fittingData: FittingData) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.fittingUpdate(fittingId),
+        'put',
+        {
+          fittingData
+        }
+      );
+      
+      // Refresh fittings after updating
+      if (response.success && userDetail) {
+        await getUserFittings(userDetail.id);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Failed to update fitting:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUserFitting = async (fittingId: string) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.fittingDelete(fittingId),
+        'delete'
+      );
+      
+      // Refresh fittings after deleting
+      if (response.success && userDetail) {
+        await getUserFittings(userDetail.id);
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Failed to delete fitting:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Product management functions
   const [userProducts, setUserProducts] = useState<Product[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -476,6 +586,26 @@ export const useUser = () => {
     }
   };
 
+  const getUserFittings = async (userId: string) => {
+    try {
+      setLoading(true);
+      const response = await globalRequest(
+        apiRoutes.userFittings(userId),
+        'get'
+      );
+      
+      const data: FittingListResponse = response;
+      setUserFittings(data.fittings || []);
+      setTotalFittings(data.pagination?.total || 0);
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch user fittings:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     userList,
     userDetail,
@@ -489,6 +619,12 @@ export const useUser = () => {
     addUserAddress,
     updateUserAddress,
     deleteUserAddress,
+    addUserFitting,
+    updateUserFitting,
+    deleteUserFitting,
+    getUserFittings,
+    userFittings,
+    totalFittings,
     userProducts,
     totalProducts,
     currentProductPage,

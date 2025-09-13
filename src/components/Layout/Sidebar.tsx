@@ -15,7 +15,8 @@ import {
   MapPin,
   Image,
   Settings,
-  DollarSign
+  DollarSign,
+  Ruler
 } from 'lucide-react';
 
 const Sidebar: React.FC = () => {
@@ -69,6 +70,11 @@ const Sidebar: React.FC = () => {
       name: 'Users',
       icon: Users,
       href: '/dashboard/users'
+    },
+    {
+      name: 'Size Charts',
+      icon: Ruler,
+      href: '/dashboard/size-charts'
     },
     {
       name: 'Referral Codes',
