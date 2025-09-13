@@ -44,6 +44,12 @@ const apiRoutes = {
   addressUpdate: (addressId: string) => `/admin/address/${addressId}`,
   addressDelete: (addressId: string) => `/admin/address/${addressId}`,
 
+  //fitting
+  userFittingAdd: (userId: string) => `/fitting`,
+  userFittings: (userId: string) => `/fitting/user/${userId}`,
+  fittingUpdate: (fittingId: string) => `/fitting/${fittingId}`,
+  fittingDelete: (fittingId: string) => `/fitting/${fittingId}`,
+
   //orders
   orderList: '/admin/orders',
   orderDetail: (id: string) => `/admin/orders/${id}`,
@@ -83,6 +89,13 @@ const apiRoutes = {
   payoutDetail: (id: string) => `/admin/earning/${id}`,
   payoutUpdate: (id: string) => `/admin/earnings/${id}`,
   settlePayout: '/admin/payout/earning',
+
+  //size charts
+  sizeChartList: '/admin/size-charts',
+  sizeChartDetail: (id: string) => `/admin/size-charts/${id}`,
+  sizeChartCreate: '/admin/size-charts',
+  sizeChartUpdate: (id: string) => `/admin/size-charts/${id}`,
+  sizeChartDelete: (id: string) => `/admin/size-charts/${id}`,
 };
 
 export default apiRoutes;

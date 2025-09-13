@@ -32,6 +32,9 @@ import ReferralCodeList from './pages/referral-codes/ReferralCodeList';
 import PlatformSettings from './pages/platform-settings/PlatformSettings';
 import PayoutList from './pages/payouts/PayoutList';
 import PayoutDetail from './pages/payouts/PayoutDetail';
+import SizeChartList from './pages/size-charts/SizeChartList';
+import SizeChartCreate from './pages/size-charts/SizeChartCreate';
+import SizeChartEdit from './pages/size-charts/SizeChartEdit';
 
 function App() {
   return (
@@ -73,6 +76,9 @@ function App() {
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="payouts" element={<PayoutList />} />
                   <Route path="payouts/:id" element={<PayoutDetail />} />
+                  <Route path="size-charts" element={<SizeChartList />} />
+                  <Route path="size-charts/create" element={<SizeChartCreate />} />
+                  <Route path="size-charts/:id/edit" element={<SizeChartEdit />} />
                 </Route>
                 
                 {/* Redirect root to dashboard */}
