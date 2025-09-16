@@ -83,6 +83,7 @@ const apiRoutes = {
 
   //notifications
   notifications: '/admin/notifications',
+  notificationCount: '/admin/notifications/unread-count',
 
   //payouts
   payoutList: '/admin/earnings',

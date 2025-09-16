@@ -356,7 +356,7 @@ const Notifications: React.FC = () => {
                         )}
                         {notification.metadata.productId && (
                           <button 
-                            onClick={() => navigate(`/dashboard/products/${notification.metadata.productId}`)}
+                            onClick={() => navigate(`/dashboard/products/${notification.metadata.productId}/view`)}
                             className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                           >
                             <Package className="h-3 w-3 mr-1" />
