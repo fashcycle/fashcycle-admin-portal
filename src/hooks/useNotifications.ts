@@ -25,15 +25,10 @@ export const useNotifications = () => {
     try {
       setLoading(true);
       const response = await globalRequest(
-        apiRoutes.notifications,
+        apiRoutes.notificationCount,
         'get',
         {},
-        {
-          params: {
-            page: 1,
-            limit: 1
-          }
-        }
+        {}
       );
       
       const data: NotificationResponse = response;
