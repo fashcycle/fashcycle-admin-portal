@@ -577,6 +577,18 @@ const OrderDetail: React.FC = () => {
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Convenience Fee:</span>
                 <p className="text-gray-900 dark:text-white">{order.convenienceFee}</p>
               </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Rent From:</span>
+                <p className="text-gray-900 dark:text-white">
+                  {orderDetail?.items?.rentFrom ? helpers?.formatDateFunction(orderDetail.items.rentFrom, "dd/mm/yyyy", true) : 'N/A'}
+                </p>
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Rent To:</span>
+                <p className="text-gray-900 dark:text-white">
+                  {orderDetail?.items?.rentTo ? helpers?.formatDateFunction(orderDetail.items.rentTo, "dd/mm/yyyy", true) : 'N/A'}
+                </p>
+              </div>
 
             </div>
           </div>          
