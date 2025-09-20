@@ -102,10 +102,26 @@ const OrderDetail: React.FC = () => {
           estimatedDelivery: helpers?.formatDateFunction(orderDetail.updatedAt, "dd/mm/yyyy", true) || prevOrder.timeline.estimatedDelivery
         },
         shippingAddress: orderDetail.shippingAddress ? 
-          `${orderDetail.shippingAddress.addressLine1}, ${orderDetail.shippingAddress.addressLine2 || ''}, ${orderDetail.shippingAddress.landmark || ''}` : 
+          [
+            orderDetail.shippingAddress.addressLine1,
+            orderDetail.shippingAddress.addressLine2,
+            orderDetail.shippingAddress.landmark,
+            orderDetail.shippingAddress.pincode?.city,
+            orderDetail.shippingAddress.pincode?.state,
+            orderDetail.shippingAddress.pincode?.country,
+            orderDetail.shippingAddress.pincode?.pincode
+          ].filter(Boolean).join(', ') : 
           prevOrder.shippingAddress,
         pickupAddress: orderDetail.pickupAddress ? 
-          `${orderDetail.pickupAddress.addressLine1}, ${orderDetail.pickupAddress.addressLine2 || ''}, ${orderDetail.pickupAddress.landmark || ''}` : 
+          [
+            orderDetail.pickupAddress.addressLine1,
+            orderDetail.pickupAddress.addressLine2,
+            orderDetail.pickupAddress.landmark,
+            orderDetail.pickupAddress.pincode?.city,
+            orderDetail.pickupAddress.pincode?.state,
+            orderDetail.pickupAddress.pincode?.country,
+            orderDetail.pickupAddress.pincode?.pincode
+          ].filter(Boolean).join(', ') : 
           'Pickup address not available',
         orderNotes: orderDetail.orderNotes || prevOrder.orderNotes
       }));
