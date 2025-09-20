@@ -82,6 +82,12 @@ interface Order {
     addressLine2: string | null;
     addressType: string;
     isDeleted: boolean;
+    pincode: {
+      city: string;
+      state: string;
+      country: string;
+      pincode: string;
+    };
   };
   pickupAddress?: {
     id: string;
@@ -92,6 +98,12 @@ interface Order {
     addressLine2: string | null;
     addressType: string;
     isDeleted: boolean;
+    pincode: {
+      city: string;
+      state: string;
+      country: string;
+      pincode: string;
+    };
   };
   orderNotes?: string;
   adminNotes?: string;
