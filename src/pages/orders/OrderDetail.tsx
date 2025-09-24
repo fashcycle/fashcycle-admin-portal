@@ -23,6 +23,7 @@ const OrderDetail: React.FC = () => {
     orderNumber: 'ORD001',
     rentAmount: 0,
     totalAmount: 15000,
+    paymentMethod: 'online',
     paymentStatus: 'completed',
     razorpayOrderId: '',
     razorpayPaymentId: '',
@@ -72,6 +73,7 @@ const OrderDetail: React.FC = () => {
         orderNumber: orderDetail.orderNumber || '',
         rentAmount: orderDetail.rentAmount || 0,
         totalAmount: orderDetail.totalAmount || 0,
+        paymentMethod: orderDetail.paymentMethod || '',
         paymentStatus: orderDetail.paymentStatus || '',
         razorpayOrderId: orderDetail.razorpayOrderId || '',
         razorpayPaymentId: orderDetail.razorpayPaymentId || '',
@@ -549,6 +551,10 @@ const OrderDetail: React.FC = () => {
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Amount:</span>
                 <p className="text-gray-900 dark:text-white">{order.totalAmount}</p>
               </div>
+              <div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Method:</span>
+                <p className="text-gray-900 dark:text-white">{order.paymentMethod || 'N/A'}</p>
+              </div>              
               <div>
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Status:</span>
                 <p className="text-gray-900 dark:text-white">{order.paymentStatus}</p>

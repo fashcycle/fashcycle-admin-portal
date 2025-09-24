@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useOrders } from '../../hooks/useOrders';
 import { helpers } from '../../utils/helper';
 import Pagination from '../../components/common/Pagination';
@@ -10,6 +10,7 @@ const OrderList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [limit] = useState(10);
 
@@ -17,7 +18,7 @@ const OrderList: React.FC = () => {
 
   useEffect(() => {
     loadOrders();
-  }, [currentPage, searchTerm, statusFilter, paymentStatusFilter]);
+  }, [currentPage, searchTerm, statusFilter, paymentStatusFilter, paymentMethodFilter]);
 
   const loadOrders = async () => {
     try {
@@ -27,6 +28,7 @@ const OrderList: React.FC = () => {
         search: searchTerm,
         status: statusFilter,
         paymentStatus: paymentStatusFilter,
+        paymentMethod: paymentMethodFilter,
       });
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -171,6 +173,15 @@ const OrderList: React.FC = () => {
             <option value="PENDING">Pending</option>
             <option value="FAILED">Failed</option>
           </select>
+          <select
+            value={paymentMethodFilter}
+            onChange={(e) => setPaymentMethodFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">All Payment Methods</option>
+            <option value="ONLINE">Online</option>
+            <option value="COD">COD</option>
+          </select>
         </div>
       </div>
 
@@ -203,6 +214,9 @@ const OrderList: React.FC = () => {
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Rental Amount
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  Payment Method
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
@@ -271,6 +285,11 @@ const OrderList: React.FC = () => {
                         {order.paymentStatus}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900 dark:text-white">
+                        {order.paymentMethod || 'N/A'}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <button
                         className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
@@ -284,7 +303,7 @@ const OrderList: React.FC = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={10} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     No orders found
                   </td>
                 </tr>
