@@ -47,6 +47,7 @@ interface Order {
   rentAmount: number;
   totalAmount: number;
   status: string;
+  paymentMethod: string;
   paymentStatus: string;
   securityStatus: string;
   razorpayOrderId: string;
@@ -132,6 +133,7 @@ interface GetOrdersParams {
   search?: string;
   status?: string;
   paymentStatus?: string;
+  paymentMethod?: string;
 }
 
 interface UpdateOrderStatusParams {
@@ -162,6 +164,7 @@ export const useOrders = () => {
             search: params.search || '',
             status: params.status || '',
             paymentStatus: params.paymentStatus || '',
+            paymentMethod: params.paymentMethod || '',
           }
         }
       );
