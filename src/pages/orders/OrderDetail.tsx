@@ -53,7 +53,8 @@ const OrderDetail: React.FC = () => {
       orderPlaced: '2024-01-20',
       estimatedDelivery: '2024-01-25'
     },
-         shippingAddress: '456 Fashion Avenue, Andheri East, Mumbai, Maharashtra - 400069',
+     shippingAddress: '456 Fashion Avenue, Andheri East, Mumbai, Maharashtra - 400069',
+     shippingAddressMobileNumber: '',
      pickupAddress: '123 Pickup Street, Andheri West, Mumbai, Maharashtra - 400058',
      orderNotes: 'Handle with care - delicate embroidery work'
   });
@@ -114,6 +115,7 @@ const OrderDetail: React.FC = () => {
             orderDetail.shippingAddress.pincode?.pincode
           ].filter(Boolean).join(', ') : 
           prevOrder.shippingAddress,
+        shippingAddressMobileNumber: orderDetail.shippingAddress?.mobileNumber || prevOrder.shippingAddressMobileNumber,
         pickupAddress: orderDetail.pickupAddress ? 
           [
             orderDetail.pickupAddress.addressLine1,
@@ -458,6 +460,9 @@ const OrderDetail: React.FC = () => {
             </div>
             <p className="text-gray-900 dark:text-white">
               {order.shippingAddress}
+            </p>
+            <p className="text-gray-900 dark:text-white">
+              Mobile Number: {order.shippingAddressMobileNumber}
             </p>
           </div>
 
