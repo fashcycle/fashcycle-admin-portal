@@ -83,6 +83,7 @@ interface Order {
     addressLine2: string | null;
     addressType: string;
     isDeleted: boolean;
+    mobileNumber: string;
     pincode: {
       city: string;
       state: string;
