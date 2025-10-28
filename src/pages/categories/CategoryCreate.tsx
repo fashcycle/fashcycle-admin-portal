@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, AlertCircle, Upload, X } from 'lucide-react';
 import { useCategory } from '../../hooks/useCategory';
+import { useSizeChart } from '../../hooks/useSizeChart';
 
 const CategoryCreate: React.FC = () => {
   const navigate = useNavigate();
   const { createCategory } = useCategory();
+  const { sizeChartList, getSizeChartList } = useSizeChart();
 
   const [category, setCategory] = useState({
     name: '',
@@ -21,6 +23,7 @@ const CategoryCreate: React.FC = () => {
     conveniencePercent: '',
     sellingPercent: '',
     isEvent: false,
+    sizeChartId: '',
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -28,6 +31,19 @@ const CategoryCreate: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
+
+  // Fetch size charts on component mount
+  useEffect(() => {
+    const fetchSizeCharts = async () => {
+      try {
+        await getSizeChartList({ limit: 100 }); // Fetch all size charts without pagination
+      } catch (error) {
+        console.error('Error fetching size charts:', error);
+      }
+    };
+    
+    fetchSizeCharts();
+  }, []);
 
   // Generate slug from name
   const generateSlug = (name: string) => {
@@ -188,6 +204,10 @@ const CategoryCreate: React.FC = () => {
       formData.append('minOriginalPurchasePrice', category.minOriginalPurchasePrice);
       formData.append('isEvent', category.isEvent.toString());
       
+      if (category.sizeChartId) {
+        formData.append('sizeChartId', category.sizeChartId);
+      }
+      
       if (category.image) {
         formData.append('image', category.image);
       }
@@ -303,6 +323,29 @@ const CategoryCreate: React.FC = () => {
             />
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               URL-friendly version of the category name (auto-generated from name)
+            </p>
+          </div>
+
+          {/* Size Chart */}
+          <div>
+            <label htmlFor="sizeChartId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Size Chart
+            </label>
+            <select
+              id="sizeChartId"
+              value={category.sizeChartId}
+              onChange={(e) => handleInputChange('sizeChartId', e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">Select Size Chart (Optional)</option>
+              {sizeChartList.map((sizeChart) => (
+                <option key={sizeChart.id} value={sizeChart.id}>
+                  {sizeChart.name}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              Select a size chart to associate with this category
             </p>
           </div>
 
